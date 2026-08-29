@@ -1,1896 +1,606 @@
-# SatQuery AI — Ground-Level Build Guide
+# SatQuery AI — Simplified Architecture README
 
-## 0. What are we building?
+## 1. What We Are Building
 
-SatQuery AI is a web application where a user uploads one or more satellite images and asks a normal-language question.
+SatQuery AI is a web-based remote-sensing assistant.
 
-Examples:
+A user provides satellite image(s) and asks a natural-language question.
 
-- "Describe the land cover in this image."
-- "Where is the water body?"
-- "What changed between these two dates?"
-- "Has the built-up area increased?"
-- "Use the optical and SAR images together to identify built-up and water-covered regions."
+The system:
 
-The application decides what kind of remote-sensing analysis the question requires, calls the appropriate specialist AI model(s), combines their evidence, and returns:
+1. checks the input;
+2. understands what kind of analysis is needed;
+3. selects the appropriate specialist AI model(s);
+4. executes them;
+5. combines their evidence;
+6. returns an answer, visual evidence, confidence, and an execution trace.
 
-- a natural-language answer;
-- visual evidence such as boxes, masks, or change maps when available;
-- confidence information;
-- an execution trace showing which task/model was used.
+The basic idea is:
 
-The key idea is NOT "train one giant SatQuery model."
-
-It is:
-
-    User
-      ↓
-    Query + satellite image(s)
-      ↓
-    Validate / preprocess data
-      ↓
-    Understand the query
-      ↓
-    Agent selects a workflow
-      ↓
-    Specialist remote-sensing models
-      ↓
-    Evidence fusion
-      ↓
-    Final LLM response
-      ↓
-    GUI
+User → Images + Query → SatQuery → Specialist Model(s) → Evidence → Answer
 
 ---
 
-# 1. What problem does SatQuery solve?
+# 2. The Two Phases
 
-Remote-sensing AI normally consists of separate tools:
+## Phase 1 — Single-Image Intelligence
 
-    VQA model       → answers questions about one image
-    Caption model   → describes an image
-    Grounding model → finds a requested object/region
-    Change model    → compares images from different dates
-    SAR/optical model → combines different sensors
+Phase 1 focuses on ONE remote-sensing image.
 
-A non-expert should not have to know which tool to use.
+Supported capabilities:
 
-SatQuery gives the user one interface.
-
-Instead of:
-
-    User → manually choose model → configure model → run model
-
-we want:
-
-    User → ask question → SatQuery chooses workflow → result
-
-The difficult part is that some questions require more than one image.
-
-For example:
-
-    Optical image from 2024
-    +
-    Optical image from 2026
-    +
-    Question: "Has urban expansion occurred?"
-
-requires temporal reasoning.
-
-Another example:
-
-    Optical image
-    +
-    SAR image
-    +
-    Question: "Where are built-up regions?"
-
-requires cross-modal reasoning.
-
----
-
-# 2. The two phases
-
-We deliberately build this in two phases.
-
-## Phase 1 — Single-image system
-
-Input:
-
-    ONE optical/multispectral OR SAR image
-    +
-    natural-language query
-
-Capabilities:
-
-    1. VQA
-    2. Captioning OR grounding
-    3. Query classification
-    4. Agent/tool routing
-    5. Evidence output
-    6. Confidence
-    7. Execution trace
-
-At the end of Phase 1:
-
-    Image + Question
-          ↓
-       SatQuery
-          ↓
-    Remote-sensing VLM
-          ↓
-       Answer
-
-## Phase 2 — Multi-image system
-
-Add:
-
-    A. Bi-temporal imagery
-       Image T1 + Image T2
-       → change detection / change VQA / localization
-
-    B. Cross-modal imagery
-       Optical + SAR
-       → joint analysis / multimodal fusion
-
-At the end:
-
-    Images + Question
-          ↓
-       SatQuery
-          ↓
-       Agent
-          ↓
-    ┌─────┴──────────────┐
-    ↓                    ↓
-  Temporal          Optical + SAR
-  specialist          specialist
-    ↓                    ↓
-    └───────┬────────────┘
-            ↓
-      Evidence fusion
-            ↓
-       Final answer
-
----
-
-# 3. The complete technology stack
-
-## Programming
-
-- Python
-- NumPy
-- Pandas
-- PyTorch
-- scikit-learn
-
-## Remote sensing / geospatial
-
-- Rasterio
-- GDAL
-- GeoPandas
-- Shapely
-- xarray / rioxarray
-- GeoTIFF
-- CRS / EPSG
-- GeoJSON
-
-## Computer vision
-
-- OpenCV
-- TorchVision
-- CNNs
-- ResNet
-- Vision Transformers
-- Object detection
-- Semantic segmentation
-- Bounding boxes
-- IoU
-- mAP
-- Dice / mIoU
-
-## Transformers
-
-- Self-attention
-- Multi-head attention
-- Cross-attention
-- Transformer encoders/decoders
-- Vision Transformers
-
-## Vision-language
-
-- CLIP
-- Image embeddings
-- Text embeddings
-- Image-text alignment
-- Vision encoder + LLM
-- Projection/adaptor layers
-- Visual instruction tuning
-- VQA
-- Captioning
+- Visual Question Answering (VQA)
+- Image/scene captioning
 - Visual grounding
-- Remote-sensing VLMs such as GeoChat
+- Precise object detection when needed
+- Natural-language interaction
+- Evidence and confidence
+- Web interface
 
-## Temporal/change
+Main flow:
 
-- Image registration
-- Co-registration
-- Bitemporal learning
-- Pixel/feature differencing
-- Siamese networks
-- Change segmentation
-- Change localization
-- Change captioning
-- Change VQA
-- ChangeChat or a comparable specialist
+Image + Query
+→ input processing
+→ LLM controller
+→ GeoChat / Grounding DINO
+→ evidence
+→ answer
 
-## Multimodal
+### Main Phase-1 model
 
-- Optical encoder
-- SAR encoder
-- Early fusion
-- Late fusion
-- Intermediate fusion
-- Cross-attention
-- Query-conditioned fusion
-- Multimodal representation learning
+**GeoChat**
 
-## Fine-tuning
+GeoChat is the main remote-sensing VLM for single-image understanding.
 
-- Hugging Face Transformers
-- PEFT
-- LoRA
-- QLoRA
-- bitsandbytes
-- Accelerate
+It can handle:
 
-## LLM / agent
+- VQA
+- captioning
+- grounded/region-level interaction
 
-- LLMs
-- Prompting
-- Structured output
-- JSON schemas
-- Function/tool calling
-- Task decomposition
-- Planning
-- Model/tool routing
-- Tool registry
-- Agent state
-- Workflow graphs
-- LangGraph (optional implementation framework)
+These are tasks/capabilities of GeoChat, not three separate models.
 
-## Evidence / reliability
+### Grounding / detection specialist
 
-- Evidence objects
-- Score fusion
-- Confidence estimation
-- Probability calibration
-- Temperature scaling
-- Uncertainty
-- Sensor disagreement
-- Grounded generation
-- Hallucination control
+**Grounding DINO**
 
-## Application
+Used when the query needs precise object detection, multiple-object localization, counting, or structured bounding boxes.
 
-- FastAPI
-- Pydantic
-- Streamlit for a prototype OR React/Next.js for a polished GUI
-- Leaflet/MapLibre for maps
+Example:
 
-## Deployment
+"Find all ships."
 
-- Docker
-- NVIDIA CUDA
-- GPU inference
-- Mixed precision
-- Quantization
-
-## Experiment tracking
-
-- Git/GitHub
-- MLflow or Weights & Biases
-- DVC if dataset versioning is needed
+Image + "ships"
+→ Grounding DINO
+→ bounding boxes + scores
 
 ---
 
-# 4. What you actually build vs what you reuse
+## Phase 2 — Multi-Image and Multi-Sensor Intelligence
 
-This distinction prevents the project from becoming impossible.
+Phase 2 extends Phase 1.
 
-## Reuse pretrained models
-
-Do NOT try to build these from scratch:
-
-- a giant LLM;
-- CLIP;
-- a huge vision foundation model;
-- GeoChat-scale VLM;
-- ChangeChat-scale VLM.
-
-Use pretrained models and adapt/fine-tune where required.
-
-## Build ourselves
-
-The project-specific engineering includes:
-
-- input validation;
-- geospatial preprocessing;
-- image registration;
-- task classifier;
-- model registry;
-- agent planner;
-- tool execution;
-- optical-SAR fusion;
-- evidence engine;
-- confidence/calibration;
-- execution trace;
-- GUI;
-- API.
-
----
-
-# 5. Dataset plan
-
-The exact benchmark files/splits should follow the competition-provided instructions. Do not assume a random online split is the official evaluation split.
-
-The practical dataset plan is:
-
-## Dataset A — BigEarthNet.txt
-
-Primary adaptation/training resource for remote-sensing image-text and multisensor understanding.
-
-Use it for:
-
-- remote-sensing VLM adaptation;
-- image-text alignment;
-- VQA/grounding-related training where the released annotations support it;
-- optical/SAR understanding.
-
-Do NOT treat it as merely "the test dataset."
-
-Its main role in this project is adaptation/training.
-
-## Dataset B — VRSBench
-
-Use the prescribed benchmark split for evaluation of the relevant single-image tasks, according to the project statement.
-
-Use it for:
-
-- single-image captioning;
-- grounding;
-- related remote-sensing vision-language evaluation.
-
-## Dataset C — RSVQA
-
-Use the prescribed benchmark split for:
-
-- single-image visual question answering.
-
-## Dataset D — CDVQA
-
-Use the prescribed benchmark split for:
-
-- bitemporal/change-based visual question answering.
-
-## Dataset E — ISRO/SAC evaluation set
-
-This is the important final external evaluation.
-
-According to the project statement, it contains pre-georeferenced and co-registered Cartosat-2S optical and RISAT SAR image pairs with task-specific reference answers, labels, boxes, or masks as applicable.
-
-Do NOT train on the hidden evaluation annotations.
-
-Use the released/prepared inputs exactly as required and keep evaluation annotations separate.
-
----
-
-# 6. Data directory
-
-Create this before doing ML:
-
-    satquery-ai/
-    └── data/
-        ├── raw/
-        │   ├── bigearthnet/
-        │   ├── vrsbench/
-        │   ├── rsvqa/
-        │   ├── cdvqa/
-        │   └── isro_sac/
-        │
-        ├── processed/
-        │   ├── bigearthnet/
-        │   ├── vrsbench/
-        │   ├── rsvqa/
-        │   ├── cdvqa/
-        │   └── isro_sac/
-        │
-        └── metadata/
-
-Never mix:
-
-    raw data
-    processed data
-    model outputs
-    evaluation annotations
-
----
-
-# 7. Phase 1 — Build it from zero
-
-## Step 1 — Create the Python environment
-
-Start with:
-
-    Python
-    PyTorch
-    NumPy
-    Pandas
-    scikit-learn
-    OpenCV
-    Rasterio
-    GDAL
-    GeoPandas
-    Shapely
-    Hugging Face Transformers
-    PEFT
-    FastAPI
-    Pydantic
-
-Do not install every possible library on day one.
-
-Start small and add dependencies as each module is implemented.
-
----
-
-# 8. Step 2 — Download and inspect BigEarthNet.txt
-
-Download the official BigEarthNet.txt release and put it under:
-
-    data/raw/bigearthnet/
-
-Before training anything, inspect:
-
-- image format;
-- number of bands;
-- text annotations;
-- VQA/referring-expression annotations if included in the release;
-- optical/SAR pairing;
-- metadata;
-- train/validation/test organization.
-
-Create a notebook:
-
-    notebooks/01_bigearthnet_exploration.ipynb
-
-Your first goal is simply:
-
-    load one sample
-       ↓
-    display optical image
-       ↓
-    inspect SAR image
-       ↓
-    print text annotation
-       ↓
-    understand the sample structure
-
-Do not fine-tune a VLM before you understand the dataset.
-
----
-
-# 9. Step 3 — Build a unified dataset format
-
-Different datasets will have different schemas.
-
-Create your own normalized internal representation.
-
-For example:
-
-    Sample:
-        image
-        image_2
-        modality
-        timestamp
-        question
-        answer
-        caption
-        grounding
-        mask
-        metadata
-
-Not every field must exist for every dataset.
-
-Example single-image VQA sample:
-
-    {
-        image: optical_image,
-        question: "...",
-        answer: "..."
-    }
-
-Example grounding sample:
-
-    {
-        image: optical_image,
-        query: "water body",
-        bbox: [...]
-    }
-
-Example temporal sample:
-
-    {
-        image_t1: ...,
-        image_t2: ...,
-        question: "...",
-        answer: ...
-    }
-
-This abstraction makes the rest of the system dataset-independent.
-
----
-
-# 10. Step 4 — Build the geospatial loader
-
-Implement:
-
-    src/data/geotiff.py
-
-with functions such as:
-
-    load_geotiff()
-    read_metadata()
-    get_crs()
-    get_transform()
-    get_bounds()
-
-For each image, capture:
-
-    width
-    height
-    number_of_bands
-    dtype
-    CRS
-    transform
-    bounds
-
-Why?
-
-Because SatQuery is not just ordinary image classification.
-
-The location and geometry of pixels matter.
-
----
-
-# 11. Step 5 — Build preprocessing
-
-Implement:
-
-    src/preprocessing/
-
-    normalize.py
-    resize.py
-    tiling.py
-    transforms.py
-
-Basic pipeline:
-
-    raw image
-       ↓
-    read bands
-       ↓
-    convert to expected representation
-       ↓
-    normalize
-       ↓
-    resize/tile if required
-       ↓
-    tensor
-       ↓
-    model
-
-For huge satellite scenes:
-
-    large image
-       ↓
-    tiles
-       ↓
-    model inference per tile
-       ↓
-    merge outputs
-
----
-
-# 12. Step 6 — Learn what a ViT is doing here
-
-Do not build a new ViT.
-
-Understand:
-
-    image
-      ↓
-    patches
-      ↓
-    patch embeddings
-      ↓
-    transformer
-      ↓
-    visual tokens/features
-
-This matters because a VLM receives visual features rather than "an image in the human sense."
-
----
-
-# 13. Step 7 — Understand CLIP
-
-CLIP gives you the basic image-text alignment idea:
-
-    image → image embedding
-    text  → text embedding
-
-Correct pair:
-
-    similarity(image, text) → high
-
-Incorrect pair:
-
-    similarity(image, text) → low
-
-Study:
-
-- cosine similarity;
-- positive/negative pairs;
-- temperature;
-- contrastive learning;
-- InfoNCE/CLIP-style objectives.
-
-You do not need to reproduce CLIP from scratch for SatQuery.
-
----
-
-# 14. Step 8 — Run a pretrained remote-sensing VLM
-
-Use a remote-sensing VLM candidate such as GeoChat for Phase 1.
-
-Conceptually:
-
-    satellite image
-          ↓
-    vision encoder
-          ↓
-    visual representation
-          ↓
-    adaptor/projector
-          ↓
-    LLM
-          ↓
-    text answer
-
-First run inference on a single sample.
-
-Before any fine-tuning, prove:
-
-    Python script
-       ↓
-    image
-       +
-    question
-       ↓
-    model
-       ↓
-    answer
-
-Only after this works should you wrap it in the application.
-
----
-
-# 15. Step 9 — Implement VQA
-
-Create:
-
-    src/tasks/vqa.py
-
-Function:
-
-    answer_vqa(image, question)
+### A. Bi-temporal analysis
 
 Input:
 
-    image
-    question
-
-Output:
-
-    answer
-    confidence (if the model provides a meaningful score; otherwise keep confidence separate)
-
-Test examples:
-
-    "What land-cover types are visible?"
-    "Is there water?"
-    "Are there buildings?"
-
-This is the mandatory Phase 1 task.
-
----
-
-# 16. Step 10 — Implement captioning
-
-Create:
-
-    src/tasks/captioning.py
-
-Function:
-
-    generate_caption(image)
-
-Output:
-
-    caption
+Image T1 + Image T2 + Query
 
 Example:
 
-    "An urban area containing roads, buildings,
-     vegetation and water."
+"What changed between 2024 and 2026?"
 
-This satisfies the second single-image capability if you choose captioning.
+→ registration/alignment
+→ ChangeChat / DeltaVLM
+→ change description / localization / quantification
 
-You can choose grounding instead; implementing both is better if time allows.
-
----
-
-# 17. Step 11 — Implement grounding
-
-Create:
-
-    src/tasks/grounding.py
-
-Function:
-
-    ground(image, query)
-
-Example:
-
-    query = "water body"
-
-Output:
-
-    {
-        "bbox": [...],
-        "label": "water body"
-    }
-
-If the selected model cannot directly provide the required grounding output, add a compatible grounding specialist rather than pretending text-only VQA is grounding.
-
----
-
-# 18. Step 12 — Create one interface for all specialists
-
-Every specialist should look similar to the rest of the application.
-
-For example:
-
-    TaskResult:
-        task
-        answer
-        spatial_evidence
-        confidence
-        metadata
-
-Then:
-
-    VQA
-       ↓
-    TaskResult
-
-    Captioning
-       ↓
-    TaskResult
-
-    Grounding
-       ↓
-    TaskResult
-
-Later:
-
-    Change
-       ↓
-    TaskResult
-
-    Optical-SAR
-       ↓
-    TaskResult
-
-This is important because the agent should not care about every model's internal implementation.
-
----
-
-# 19. Step 13 — Create the model registry
-
-Create:
-
-    src/agent/registry.py
-
-Conceptually:
-
-    MODEL_REGISTRY = {
-        "vqa": GeoChatVQA,
-        "captioning": GeoChatCaptioning,
-        "grounding": GroundingModel,
-        "change": ChangeModel,
-        "optical_sar": OpticalSARModel
-    }
-
-The registry answers:
-
-    What tools exist?
-    What inputs do they need?
-    What outputs do they return?
-
----
-
-# 20. Step 14 — Build query classification
-
-Start simple.
+### B. Optical + SAR analysis
 
 Input:
 
-    "Where is the water body?"
+Optical image + SAR image + Query
 
-Output:
+→ optical encoder
+→ SAR encoder
+→ fusion
+→ cross-attention
+→ query-conditioned fusion
+→ result
 
-    grounding
-
-Input:
-
-    "Describe the image."
-
-Output:
-
-    captioning
-
-Input:
-
-    "What objects are visible?"
-
-Output:
-
-    vqa
-
-Initially use rules or a small classifier.
-
-Later let an LLM handle ambiguous/complex requests.
-
-Do not make the LLM responsible for everything from the beginning.
+This is the main custom ML component of Phase 2.
 
 ---
 
-# 21. Step 15 — Introduce the LLM
+# 3. Core Model Stack
 
-Now bring in the AI/agent layer.
+We keep FOUR core specialist models/components.
 
-The LLM's main Phase 1 responsibility is:
+## 1. GeoChat
 
-    understand query
-       ↓
-    select tool
-       ↓
-    produce structured tool call
+**Type:** Remote-sensing Vision-Language Model
 
-For example:
+**Purpose:** Single-image understanding.
 
-    {
-        "tool": "grounding",
-        "arguments": {
-            "query": "water body"
-        }
-    }
+**Inputs:**
+- image
+- natural-language query
 
-Your Python backend then executes the actual model.
+**Outputs:**
+- answer
+- caption
+- grounded result where supported
 
-Important:
-
-The LLM is NOT the remote-sensing vision model.
-
-It is controlling the workflow.
+**Training/adaptation:**
+- start from pretrained GeoChat
+- adapt/fine-tune using BigEarthNet.txt
+- use LoRA/PEFT where compatible
 
 ---
 
-# 22. Step 16 — Implement tool calling
+## 2. Grounding DINO
 
-The execution loop is:
+**Type:** Open-set language-guided object detector
 
-    User query
-       ↓
-    LLM
-       ↓
-    tool call
-       ↓
-    Python executor
-       ↓
-    specialist model
-       ↓
-    structured result
-       ↓
-    LLM
-       ↓
-    final response
+**Purpose:** Precise object detection/localization.
 
-This is the first genuinely agentic part.
+**Inputs:**
+- image
+- text/object prompt
 
----
+**Outputs:**
+- bounding boxes
+- labels
+- confidence scores
 
-# 23. Step 17 — Add evidence objects
+**Why it exists:**
 
-Do not let every model return arbitrary prose.
+GeoChat can ground objects, but a dedicated detector gives a cleaner structured tool for:
 
-Use a common structure:
+- multiple objects
+- counting
+- precise boxes
+- detection verification
 
-    Evidence:
-        source_model
-        task
-        claim
-        confidence
-        bbox
-        mask
-        metadata
-
-Example:
-
-    {
-        "source_model": "GeoChat",
-        "task": "grounding",
-        "claim": "water body identified",
-        "confidence": 0.91,
-        "bbox": [...]
-    }
-
-This makes later evidence fusion possible.
+**Possible remote-sensing data:**
+- VRSBench object references where permitted
+- xView or another suitable overhead detection dataset for an expanded detector branch
 
 ---
 
-# 24. Step 18 — Add a final answer generator
+## 3. ChangeChat / DeltaVLM
 
-Now the architecture becomes:
+**Type:** Bitemporal remote-sensing Vision-Language Model
 
-    image + query
-          ↓
-        agent
-          ↓
-      specialist
-          ↓
-       evidence
-          ↓
-      answer LLM
-          ↓
-       response
+**Purpose:** Understand changes between images acquired at different times.
 
-The final LLM should phrase the evidence, not invent unsupported visual facts.
+**Inputs:**
+- image T1
+- image T2
+- query
 
----
+**Outputs:**
+- change description
+- change answer
+- localization/quantification where supported
 
-# 25. Step 19 — Add execution traces
+**Training/adaptation data:**
+- ChangeChat-87k
+- or the later ChangeChat-105k / DeltaVLM data, depending on the final model choice, weights, code, license, and competition rules
 
-For every query store:
-
-    selected task
-    selected model
-    parameters
-    output
-    confidence
-    execution time
-
-Example:
-
-    Query:
-    "Where is the water body?"
-
-    Workflow:
-    Query classifier
-        ↓
-    grounding
-        ↓
-    GeoChat / grounding model
-        ↓
-    evidence
-        ↓
-    final answer
-
-This is required for the project's auditable execution concept.
+**Evaluation:**
+- CDVQA
 
 ---
 
-# 26. Step 20 — Build Phase 1 API
+## 4. Optical-SAR Fusion Model
 
-Create:
+**Type:** Custom multimodal fusion model
 
-    api/main.py
-    api/routes.py
-    api/schemas.py
-
-Basic endpoint:
-
-    POST /analyze
-
-Request:
-
-    image
-    query
-
-Response:
-
-    answer
-    evidence
-    confidence
-    execution_trace
-
-FastAPI sits between the GUI and the ML system.
-
----
-
-# 27. Step 21 — Build Phase 1 GUI
-
-For the first working prototype use Streamlit.
-
-GUI:
-
-    ┌─────────────────────────────────┐
-    │ Upload satellite image          │
-    │                                 │
-    │ [ image ]                       │
-    │                                 │
-    │ Question:                       │
-    │ [ Where is the water body? ]    │
-    │                                 │
-    │          [ ANALYZE ]            │
-    └─────────────────────────────────┘
-
-Then:
-
-    Answer
-    Evidence
-    Confidence
-    Image with box/mask
-    Execution trace
-
-At this point Phase 1 is a real application.
-
----
-
-# 28. Step 22 — Evaluate Phase 1
-
-Use the prescribed benchmark test splits.
-
-VQA:
-
-    accuracy / task-appropriate metric
-
-Captioning:
-
-    BLEU / ROUGE / METEOR / CIDEr as appropriate
-
-Grounding:
-
-    IoU / grounding-specific metric
-
-Also measure:
-
-    routing accuracy
-    tool execution success
-    latency
-    hallucination/error rate
-
-Do NOT tune on the official test set.
-
----
-
-# 29. Phase 1 milestone
-
-You are finished with Phase 1 when this works:
-
-    User
-      ↓
-    uploads one satellite image
-      ↓
-    asks a natural-language question
-      ↓
-    SatQuery understands the task
-      ↓
-    selects a specialist
-      ↓
-    runs it
-      ↓
-    obtains evidence
-      ↓
-    returns answer + visual evidence + trace
-
----
-
-# 30. Phase 2 — Add temporal reasoning
-
-Now we change the input from:
-
-    image
-
-to:
-
-    image_t1 + image_t2
-
-Example:
-
-    2024 image
-    2026 image
-
-Question:
-
-    "What changed?"
-
----
-
-# 31. Phase 2 Step 1 — Add pair validation
-
-Check:
-
-    same geographic region?
-    compatible CRS?
-    compatible resolution?
-    acquisition dates?
-    dimensions?
-    registration status?
-
-If not aligned:
-
-    registration
-        ↓
-    aligned pair
-
----
-
-# 32. Phase 2 Step 2 — Implement image registration
-
-Create:
-
-    src/preprocessing/registration.py
-
-The objective is:
-
-    T1
-      \
-       → aligned pair
-      /
-    T2
-
-Why?
-
-Because:
-
-    spatial misalignment
-          ↓
-    false change
-
-Registration is therefore part of the ML pipeline, not an optional cosmetic step.
-
----
-
-# 33. Phase 2 Step 3 — Build a simple change baseline
-
-Before using a sophisticated VLM, implement something understandable.
-
-For example:
-
-    T1
-     ↓
-    features_1
-
-    T2
-     ↓
-    features_2
-
-    difference(features_1, features_2)
-              ↓
-          change map
-
-You can begin with pixel/feature differencing.
-
-The purpose is to understand the actual change-detection problem.
-
----
-
-# 34. Phase 2 Step 4 — Build a Siamese baseline
+**Purpose:** Jointly reason over optical/multispectral and SAR imagery.
 
 Architecture:
 
-    T1 → shared encoder → F1
-                          \
-                           difference → change head
-                          /
-    T2 → shared encoder → F2
+Optical
+→ optical encoder
+→ optical features
 
-The shared encoder forces both dates into a comparable feature space.
+SAR
+→ SAR encoder
+→ SAR features
 
-Then train:
+Optical features + SAR features
+→ fusion
+→ joint representation
+→ prediction
 
-    F1 - F2
-       ↓
-    change prediction
+Development stages:
 
-This gives you a proper ML baseline.
+### Baseline
+Late fusion:
 
----
+Optical features + SAR features
+→ concatenate
+→ MLP/head
 
-# 35. Phase 2 Step 5 — Integrate a change specialist
+### Advanced
+Cross-attention:
 
-Use a model such as ChangeChat as a specialist candidate.
+Optical tokens ↔ SAR tokens
 
-Input:
+### Final
+Query-conditioned fusion:
 
-    image_t1
-    image_t2
-    question
-
-Possible outputs:
-
-    change description
-    change answer
-    change localization
-    change quantification
-
-The agent can call this model when the query requires temporal reasoning.
+Query + optical + SAR
+→ attention/fusion
+→ query-specific joint representation
+→ result
 
 ---
 
-# 36. Phase 2 Step 6 — Add change localization
+# 4. Optional Support Model
 
-Return:
+## SAM 2
 
-    text description
-    +
-    change mask / region
+SAM 2 is NOT a fifth core reasoning specialist.
+
+It is an optional spatial-mask refinement tool.
+
+Flow:
+
+GeoChat / Grounding DINO
+→ bounding box / point
+→ SAM 2
+→ precise pixel mask
+
+Use it only when a precise segmentation mask is useful or required.
+
+---
+
+# 5. Dataset → Model Mapping
+
+## BigEarthNet.txt
+
+**Primary role: adaptation/training**
+
+Use for:
+
+- GeoChat remote-sensing adaptation
+- multisensor image-text learning
+- optical-SAR fusion experiments
+
+It contains co-registered Sentinel-1 SAR and Sentinel-2 multispectral imagery plus large-scale text annotations.
+
+Pipeline:
+
+BigEarthNet.txt
+→ preprocessing
+→ training examples
+→ LoRA/PEFT adaptation
+→ adapted GeoChat
+
+It can also support optical-SAR fusion training because it contains aligned SAR + multispectral data.
+
+---
+
+## VRSBench
+
+**Primary role: single-image benchmark**
+
+Use for:
+
+- VQA evaluation
+- caption/grounding evaluation
+- object-reference/grounding data where permitted
+
+---
+
+## RSVQA
+
+**Primary role: single-image VQA evaluation**
+
+Use it to measure how well the adapted remote-sensing VLM answers remote-sensing questions.
+
+---
+
+## CDVQA
+
+**Primary role: temporal/change evaluation**
+
+Use:
+
+Image T1 + Image T2 + question
+→ Change specialist
+→ CDVQA evaluation
+
+---
+
+## ChangeChat-87k / ChangeChat-105k
+
+**Primary role: training/adaptation for the temporal specialist**, where permitted.
+
+Use only after selecting the actual change model and verifying its available weights/code.
+
+---
+
+## xView / other appropriate overhead-detection data
+
+**Primary role: optional detector specialization**
+
+Use if the dedicated Grounding DINO branch needs further remote-sensing object-detection adaptation.
+
+---
+
+## ISRO/SAC Evaluation Set
+
+**Primary role: final external evaluation**
+
+Keep it separate from training.
+
+Do not train using hidden evaluation annotations.
+
+---
+
+# 6. Data Processing Pipeline
+
+Every uploaded image goes through:
+
+Upload
+→ file validation
+→ image-count check
+→ modality check
+→ metadata check
+→ CRS check
+→ geospatial preprocessing
+→ normalization/resampling
+→ tiling if needed
+→ registration if needed
+→ model-ready input
+
+Main tools:
+
+- Rasterio
+- GDAL
+- NumPy
+- OpenCV
+- GeoPandas
+- Shapely
+
+Important concepts:
+
+- GeoTIFF
+- raster
+- bands
+- CRS
+- EPSG
+- georeferencing
+- reprojection
+- resampling
+- co-registration
+
+---
+
+# 7. LLM Agent
+
+The LLM is the controller.
+
+It is NOT the main satellite-image specialist.
+
+It receives:
+
+- the user's query;
+- image count;
+- modality;
+- timestamps;
+- metadata;
+- the list of available tools.
+
+It decides which tool(s) should be used.
+
+Examples:
+
+"Describe this image."
+→ GeoChat
+
+"Where are the ships?"
+→ Grounding DINO
+
+"What changed between these dates?"
+→ ChangeChat
+
+"Use optical and SAR together."
+→ Optical-SAR Fusion
+
+Complex request:
+
+"What new construction occurred and does SAR support it?"
+
+→ ChangeChat
+→ Grounding DINO / GeoChat
+→ Optical-SAR Fusion
+→ evidence fusion
+
+The LLM does not execute the models itself.
+
+It returns a structured tool call.
+
+Python executes the selected model.
+
+---
+
+# 8. Evidence Layer
+
+Every model should return a common result format.
 
 Example:
 
-    "Built-up expansion occurred in the eastern
-     region."
+{
+    "task": "...",
+    "model": "...",
+    "claim": "...",
+    "confidence": 0.91,
+    "bbox": [...],
+    "mask": "...",
+    "metadata": {...}
+}
 
-    [highlighted change region]
+This allows outputs from different specialists to be combined.
 
----
+The evidence engine can:
 
-# 37. Phase 2 Step 7 — Add change quantification
-
-If the change mask and geospatial metadata permit it:
-
-    changed pixels
-        ↓
-    pixel area
-        ↓
-    total changed area
-
-Example:
-
-    2024 built-up area = 12.4 km²
-    2026 built-up area = 15.1 km²
-
-    increase = 2.7 km²
-
-This is where geospatial raster calculations become important.
+- combine results;
+- check agreement;
+- detect disagreement;
+- calculate confidence;
+- preserve spatial evidence.
 
 ---
 
-# 38. Phase 2 Step 8 — Add optical + SAR
+# 9. Phase 1 — Exact Build Order
 
-Now accept:
+1. Get a small BigEarthNet.txt sample.
+2. Inspect one sample.
+3. Build GeoTIFF/raster loading.
+4. Build preprocessing.
+5. Run pretrained GeoChat.
+6. Verify image + question → answer.
+7. Test GeoChat VQA.
+8. Test captioning.
+9. Test grounding.
+10. Adapt GeoChat using permitted BigEarthNet.txt training data.
+11. Evaluate the adapted GeoChat.
+12. Integrate Grounding DINO where precise detection is needed.
+13. Create a common result/evidence schema.
+14. Create a model/tool registry.
+15. Add the LLM controller.
+16. Implement structured tool calling.
+17. Build the execution layer.
+18. Add confidence/evidence handling.
+19. Build FastAPI.
+20. Build the GUI.
+21. Add execution tracing.
+22. Evaluate the complete Phase-1 workflow.
 
-    optical image
-    +
-    SAR image
-
-The system should not simply concatenate raw pixels.
-
-First create separate representations:
-
-    Optical
-       ↓
-    optical encoder
-       ↓
-    optical features
-
-    SAR
-       ↓
-    SAR encoder
-       ↓
-    SAR features
-
----
-
-# 39. Phase 2 Step 9 — Align optical and SAR
-
-Check:
-
-    CRS
-    geographic coverage
-    spatial resolution
-    pixel grid
-    registration
-
-Then:
-
-    optical
-       +
-    SAR
-       ↓
-    aligned pair
-
-This is especially important because optical and SAR have different sensing mechanisms.
+At this point Phase 1 is complete.
 
 ---
 
-# 40. Phase 2 Step 10 — Build the simplest fusion baseline
+# 10. Phase 2 — Exact Build Order
 
-Start with late fusion:
+23. Add two-image input.
+24. Validate temporal metadata.
+25. Add registration/co-registration.
+26. Build a simple change baseline.
+27. Integrate ChangeChat / DeltaVLM.
+28. Add change localization/quantification where supported.
+29. Add optical + SAR input.
+30. Preprocess optical data.
+31. Preprocess SAR data.
+32. Build optical encoder branch.
+33. Build SAR encoder branch.
+34. Build a late-fusion baseline.
+35. Upgrade to cross-attention.
+36. Add query-conditioned fusion.
+37. Upgrade the LLM agent to multi-step workflows.
+38. Add multi-model evidence fusion.
+39. Add confidence calibration.
+40. Add disagreement handling.
+41. Add SAM 2 when precise masks are required.
+42. Evaluate on CDVQA.
+43. Evaluate on the prescribed ISRO/SAC evaluation set.
+44. Finalize the GUI and deployment.
 
-    optical features ─┐
-                      ├→ concatenate → MLP → prediction
-    SAR features ─────┘
-
-This is your baseline.
-
-Do not jump directly into cross-attention before you can show that a simple fusion system works.
-
----
-
-# 41. Phase 2 Step 11 — Implement cross-attention fusion
-
-Upgrade to:
-
-    optical tokens
-          ↕
-    cross-attention
-          ↕
-       SAR tokens
-
-The model learns interactions between the two modalities.
-
----
-
-# 42. Phase 2 Step 12 — Make fusion query-conditioned
-
-Now include the user's question.
-
-Example:
-
-    Query:
-    "Where are water bodies?"
-
-The system can use:
-
-    optical information
-    +
-    SAR information
-    +
-    question
-
-to produce a query-specific fused representation.
-
-Conceptually:
-
-    Question
-       ↓
-    text representation
-       ↓
-    cross-attention
-       ↙       ↘
-    Optical    SAR
-       ↘       ↙
-       fused representation
-              ↓
-           answer
-
-This is a strong custom ML component for the project.
+At this point Phase 2 is complete.
 
 ---
 
-# 43. Phase 2 Step 13 — Build evidence fusion
+# 11. Final Architecture
 
-Now several models can provide evidence.
-
-Example:
-
-    Change model
-        → temporal evidence
-
-    Optical model
-        → visual evidence
-
-    SAR model
-        → structural evidence
-
-    Grounding model
-        → spatial evidence
-
-Combine:
-
-    all evidence
-         ↓
-    evidence engine
-         ↓
-    supported conclusion
-
----
-
-# 44. Phase 2 Step 14 — Add disagreement handling
-
-Suppose:
-
-    Optical → strong change evidence
-    SAR     → weak change evidence
-
-Do not pretend they agree.
-
-Return:
-
-    Optical evidence: strong
-    SAR evidence: moderate
-    Agreement: partial
-    Overall confidence: moderate/high depending on calibration
-
-This is more trustworthy than blindly averaging scores.
-
----
-
-# 45. Phase 2 Step 15 — Calibrate confidence
-
-Raw neural-network scores are not automatically trustworthy probabilities.
-
-Use validation data to study:
-
-    temperature scaling
-    reliability diagrams
-    expected calibration error (ECE)
-
-Then expose a meaningful confidence estimate to the user.
+                         USER
+                           │
+                   images + query
+                           │
+                           ▼
+                    WEB GUI / API
+                           │
+                           ▼
+                  INPUT VALIDATION
+                           │
+                           ▼
+               GEOSPATIAL PROCESSING
+                           │
+                           ▼
+                  QUERY + INPUT ANALYSIS
+                           │
+                           ▼
+                     LLM AGENT
+                           │
+              ┌────────────┼─────────────┐
+              │            │             │
+              ▼            ▼             ▼
+           GeoChat     Grounding DINO  ChangeChat
+              │            │             │
+       VQA/Caption/    boxes/counts   temporal change
+        Grounding
+              │            │             │
+              └────────────┼─────────────┘
+                           │
+                           ▼
+                   OPTICAL-SAR FUSION
+                   (when required)
+                           │
+                           ▼
+                        SAM 2
+                   (optional masks)
+                           │
+                           ▼
+                    EVIDENCE ENGINE
+                           │
+                           ▼
+                 CONFIDENCE / AGREEMENT
+                           │
+                           ▼
+                      ANSWER LLM
+                           │
+                           ▼
+                         GUI
 
 ---
 
-# 46. Phase 2 Step 16 — Upgrade the agent to multi-step workflows
+# 12. Final Mental Model
 
-Phase 1:
+SatQuery is not one huge model.
 
-    query
-      ↓
-    one tool
-      ↓
-    result
+It is:
 
-Phase 2:
+**GeoChat**
+→ understands a single remote-sensing image.
 
-    query
-      ↓
-    planner
-      ↓
-    tool 1
-      ↓
-    tool 2
-      ↓
-    tool 3
-      ↓
-    evidence fusion
-      ↓
-    answer
+**Grounding DINO**
+→ precisely finds/counts objects when needed.
 
-Example:
+**ChangeChat / DeltaVLM**
+→ understands change between dates.
 
-    "Has urban expansion occurred and does SAR support it?"
+**Optical-SAR Fusion**
+→ jointly reasons over optical + SAR.
 
-Agent plan:
+**SAM 2 (optional)**
+→ turns a region/box/point into a precise mask.
 
-    1. Validate temporal pair
-    2. Run change analysis
-    3. Localize changed region
-    4. Identify built-up regions
-    5. Analyze SAR
-    6. Compare evidence
-    7. Generate final answer
+**LLM Agent**
+→ decides which specialist(s) to use and in what order.
 
-That is the full agentic workflow.
+**Evidence Engine**
+→ combines their outputs and produces a trustworthy result.
 
----
+The overall system is:
 
-# 47. Phase 2 Step 17 — Final GUI
-
-The final GUI should support:
-
-    ┌─────────────────────────────────────────┐
-    │ Upload                                  │
-    │                                         │
-    │ [Optical 2024] [Optical 2026] [SAR]   │
-    │                                         │
-    │ Query                                   │
-    │ [ Has urban expansion occurred? ]       │
-    │                                         │
-    │              [ ANALYZE ]                │
-    └─────────────────────────────────────────┘
-
-Output:
-
-    Answer
-    ─────────────────────────
-    Built-up area increased...
-
-    Change Map
-    ─────────────────────────
-    [visualized mask]
-
-    Evidence
-    ─────────────────────────
-    Optical: strong
-    SAR: moderate
-
-    Confidence
-    ─────────────────────────
-    87%
-
-    Execution
-    ─────────────────────────
-    Change model
-       ↓
-    Grounding
-       ↓
-    Optical-SAR fusion
-       ↓
-    Evidence fusion
-
----
-
-# 48. Final architecture
-
-The final system looks like:
-
-    ┌────────────────────────────────────────────┐
-    │                  USER / GUI                │
-    │                                            │
-    │ Images + natural-language question        │
-    └─────────────────────┬──────────────────────┘
-                          ↓
-    ┌────────────────────────────────────────────┐
-    │              INPUT VALIDATOR                │
-    │                                            │
-    │ format / modality / CRS / dimensions      │
-    │ temporal relationship / registration       │
-    └─────────────────────┬──────────────────────┘
-                          ↓
-    ┌────────────────────────────────────────────┐
-    │               PREPROCESSING                 │
-    │                                            │
-    │ Rasterio / GDAL / normalization / tiling  │
-    │ registration / resampling                 │
-    └─────────────────────┬──────────────────────┘
-                          ↓
-    ┌────────────────────────────────────────────┐
-    │             QUERY UNDERSTANDING             │
-    │                                            │
-    │ task / modality / temporal requirements   │
-    └─────────────────────┬──────────────────────┘
-                          ↓
-    ┌────────────────────────────────────────────┐
-    │                LLM AGENT                    │
-    │                                            │
-    │ planning / routing / tool calling          │
-    └─────────────────────┬──────────────────────┘
-                          ↓
-          ┌───────────────┼────────────────┐
-          ↓               ↓                ↓
-       SINGLE          TEMPORAL         OPTICAL-SAR
-       IMAGE             CHANGE            FUSION
-          │               │                │
-          ↓               ↓                ↓
-       GeoChat         ChangeChat       Optical encoder
-       / VLM                            SAR encoder
-          │                                │
-     ┌────┼────┐                       cross-attention
-     ↓    ↓    ↓                            │
-    VQA Caption Grounding              fused features
-          │                                │
-          └──────────────┬─────────────────┘
-                         ↓
-                ┌─────────────────┐
-                │ EVIDENCE ENGINE │
-                │                 │
-                │ fusion          │
-                │ agreement       │
-                │ confidence      │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │   ANSWER LLM    │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │      GUI        │
-                │                 │
-                │ answer          │
-                │ map/mask/box    │
-                │ confidence      │
-                │ execution trace │
-                └─────────────────┘
-
----
-
-# 49. The complete implementation order
-
-If you are a rookie, follow this exact order.
-
-## Foundation
-
-    1. Python
-    2. NumPy
-    3. PyTorch
-    4. Basic CNN/ViT understanding
-    5. Transformers
-    6. Attention/cross-attention
-    7. LLM basics
-    8. Tool calling/structured outputs
-    9. Agent basics
-
-## Remote sensing
-
-    10. Optical imagery
-    11. Multispectral bands
-    12. SAR basics
-    13. GeoTIFF
-    14. CRS/EPSG
-    15. Rasterio/GDAL
-    16. Image registration
-    17. Tiling/resampling
-
-## VLM
-
-    18. CLIP
-    19. Contrastive learning
-    20. VLM architecture
-    21. VQA
-    22. Captioning
-    23. Visual grounding
-    24. Remote-sensing VLMs
-    25. GeoChat inference
-    26. Remote-sensing fine-tuning/LoRA
-
-## Phase 1 implementation
-
-    27. BigEarthNet.txt inspection
-    28. Dataset normalization
-    29. Image loader
-    30. Preprocessing
-    31. GeoChat inference
-    32. VQA
-    33. Captioning/grounding
-    34. Task classifier
-    35. Model registry
-    36. LLM tool calling
-    37. Agent
-    38. Evidence objects
-    39. Confidence
-    40. FastAPI
-    41. Streamlit
-    42. Phase 1 evaluation
-
-## Phase 2 implementation
-
-    43. VRSBench/RSVQA evaluation integration
-    44. CDVQA integration
-    45. Bitemporal preprocessing
-    46. Registration
-    47. Change baseline
-    48. Siamese change model
-    49. Change specialist
-    50. Change localization
-    51. Change quantification
-    52. Optical-SAR alignment
-    53. Optical encoder
-    54. SAR encoder
-    55. Late-fusion baseline
-    56. Cross-attention
-    57. Query-conditioned fusion
-    58. Evidence fusion
-    59. Confidence calibration
-    60. Multi-step agent
-    61. Final GUI
-    62. Final evaluation
-    63. Docker/deployment
-
----
-
-# 50. What the ML models are actually doing
-
-This is the most important conceptual summary.
-
-## VQA
-
-    image + question
-           ↓
-        VLM
-           ↓
-        answer
-
-## Grounding
-
-    image + text
-           ↓
-      grounding model
-           ↓
-       box / region
-
-## Captioning
-
-    image
-      ↓
-     VLM
-      ↓
-   caption
-
-## Change detection
-
-    image T1 + image T2
-             ↓
-       change model
-             ↓
-         change map
-
-## Change VQA
-
-    image T1 + image T2 + question
-                    ↓
-               change VLM
-                    ↓
-                 answer
-
-## Optical-SAR
-
-    optical → optical encoder ─┐
-                               ├→ fusion → answer
-    SAR → SAR encoder ─────────┘
-
-## Agent
-
-    question
-       ↓
-    LLM
-       ↓
-    choose tools
-       ↓
-    execute tools
-       ↓
-    combine results
-       ↓
-    final response
-
----
-
-# 51. The most important distinction
-
-Do not confuse the LLM with the vision models.
-
-### Specialist ML models answer:
-
-    "What is in the image?"
-    "Where is it?"
-    "What changed?"
-    "What does SAR show?"
-
-### The LLM/agent answers:
-
-    "What is the user asking?"
-    "Which model should I use?"
-    "Do I need more than one model?"
-    "What should I do next?"
-    "How do I turn the evidence into an answer?"
-
-### The application layer answers:
-
-    "How do I upload images?"
-    "How do I display a map?"
-    "How do I return the result?"
-
-That separation is the architecture.
-
----
-
-# 52. Final mental model
-
-SatQuery is essentially:
-
-    REMOTE-SENSING AI MODELS
-                +
-       MULTIMODAL FUSION
-                +
-          LLM AGENT
-                +
-        EVIDENCE SYSTEM
-                +
-           WEB APP
-
-The two phases are:
-
-    PHASE 1
-    One image
-       ↓
-    VQA / captioning / grounding
-       ↓
-    Agentic routing
-       ↓
-    Answer
-
-    PHASE 2
-    Two+ images
-       ↓
-    Temporal change analysis
-       +
-    Optical-SAR fusion
-       ↓
-    Multi-step agent
-       ↓
-    Evidence fusion
-       ↓
-    Answer
-
-The goal is NOT to create one magical model.
-
-The goal is to create a reliable system in which:
-
-    specialized models do specialized visual work
-
-and:
-
-    the LLM agent decides how those models should be used.
-
----
-
-# 53. Practical rule while building
-
-At every stage, follow:
-
-    UNDERSTAND
-       ↓
-    BUILD SIMPLE BASELINE
-       ↓
-    TEST
-       ↓
-    USE PRETRAINED SPECIALIST
-       ↓
-    INTEGRATE
-       ↓
-    ONLY THEN ADD COMPLEXITY
-
-Do not begin with:
-
-    "Let's build the agent."
-
-Begin with:
-
-    "Can I load one satellite image?"
-
-Then:
-
-    "Can I run a VLM?"
-
-Then:
-
-    "Can I answer one question?"
-
-Then:
-
-    "Can I select the right model?"
-
-Then:
-
-    "Can I compare two images?"
-
-Then:
-
-    "Can I combine optical and SAR?"
-
-Then:
-
-    "Can an agent coordinate everything?"
-
-That is how the project should be built from the ground up.
+User
+→ query + image(s)
+→ validation/preprocessing
+→ LLM agent
+→ specialist model(s)
+→ evidence
+→ confidence
+→ final answer + visual evidence
+→ GUI
