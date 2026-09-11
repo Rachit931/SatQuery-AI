@@ -549,6 +549,8 @@
   overflow: hidden;
   color: #ffffff;
   cursor: default;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               filter 0.3s ease;
@@ -601,64 +603,64 @@
 /* ── Step 0 — Deep Orbital Sapphire & Electric Cyan ── */
 .node-step-0,
 #workspace .node-step-0 {
-  background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 45%, #0284c7 100%);
-  border: 1px solid rgba(56, 189, 248, 0.70);
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.78) 0%, rgba(3, 105, 161, 0.76) 45%, rgba(2, 132, 199, 0.80) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.50);
   color: #ffffff;
   box-shadow:
-    0 4px 16px rgba(2, 132, 199, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  text-shadow: 0 1px 2px rgba(10, 25, 60, 0.5);
+    0 4px 14px rgba(2, 132, 199, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  text-shadow: 0 1px 2px rgba(10, 25, 60, 0.4);
 }
 
 /* ── Step 1 — Cosmic Violet & Aurora Amethyst (SatQuery Accent) ── */
 .node-step-1,
 #workspace .node-step-1 {
-  background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 45%, #8b5cf6 100%);
-  border: 1px solid rgba(192, 132, 252, 0.70);
+  background: linear-gradient(135deg, rgba(76, 29, 149, 0.78) 0%, rgba(109, 40, 217, 0.76) 45%, rgba(139, 92, 246, 0.80) 100%);
+  border: 1px solid rgba(192, 132, 252, 0.50);
   color: #ffffff;
   box-shadow:
-    0 4px 16px rgba(124, 58, 237, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  text-shadow: 0 1px 2px rgba(35, 10, 70, 0.5);
+    0 4px 14px rgba(124, 58, 237, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  text-shadow: 0 1px 2px rgba(35, 10, 70, 0.4);
 }
 
 /* ── Step 2 — Multispectral Solar Gold & Infrared Amber (Starlight Tone) ── */
 .node-step-2,
 #workspace .node-step-2 {
-  background: linear-gradient(135deg, #9a3412 0%, #c2410c 40%, #ea580c 100%);
-  border: 1px solid rgba(251, 146, 60, 0.75);
+  background: linear-gradient(135deg, rgba(154, 52, 18, 0.78) 0%, rgba(194, 65, 12, 0.76) 40%, rgba(234, 88, 12, 0.80) 100%);
+  border: 1px solid rgba(251, 146, 60, 0.55);
   color: #ffffff;
   box-shadow:
-    0 4px 16px rgba(234, 88, 12, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  text-shadow: 0 1px 2px rgba(70, 20, 5, 0.5);
+    0 4px 14px rgba(234, 88, 12, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  text-shadow: 0 1px 2px rgba(70, 20, 5, 0.4);
 }
 
 /* ── Step 3 — Cyber Cobalt & Electric Indigo Intelligence ── */
 .node-step-3,
 #workspace .node-step-3 {
-  background: linear-gradient(135deg, #312e81 0%, #4338ca 45%, #6366f1 100%);
-  border: 1px solid rgba(165, 180, 252, 0.75);
+  background: linear-gradient(135deg, rgba(49, 46, 129, 0.78) 0%, rgba(67, 56, 202, 0.76) 45%, rgba(99, 102, 241, 0.80) 100%);
+  border: 1px solid rgba(165, 180, 252, 0.55);
   color: #ffffff;
   box-shadow:
-    0 4px 16px rgba(99, 102, 241, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  text-shadow: 0 1px 2px rgba(15, 10, 60, 0.5);
+    0 4px 14px rgba(99, 102, 241, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  text-shadow: 0 1px 2px rgba(15, 10, 60, 0.4);
 }
 
 /* ── Final Node — Earth Proof Emerald & Cyber Jade ── */
 .node-final,
 #workspace .node-final {
-  background: linear-gradient(135deg, #064e3b 0%, #059669 45%, #10b981 100%);
-  border: 1px solid rgba(52, 211, 153, 0.85);
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.82) 0%, rgba(5, 150, 105, 0.78) 45%, rgba(16, 185, 129, 0.82) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.65);
   color: #ffffff;
   font-size: 9px;
   letter-spacing: 0.17em;
   box-shadow:
-    0 4px 20px rgba(16, 185, 129, 0.50),
-    0 0 32px rgba(16, 185, 129, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.60);
-  text-shadow: 0 1px 3px rgba(0, 35, 20, 0.6);
+    0 4px 16px rgba(16, 185, 129, 0.35),
+    0 0 24px rgba(16, 185, 129, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.50);
+  text-shadow: 0 1px 3px rgba(0, 35, 20, 0.5);
 }
 
 /* Hover effects */
