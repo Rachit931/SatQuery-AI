@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { ArrowUpRight, Compass, ShieldCheck, Cpu, Layers, Sparkles } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import './teaser-system.css';
 
@@ -185,8 +185,10 @@ function Visual({ type }: { type: string }) {
     <div className={`teaser-visual pipeline ${type}`}>
       <div className="pipeline-container">
         {steps.map((step, index) => (
-          <div className="pipeline-node" key={step}>
-            <span className={index === steps.length - 1 ? 'node-final' : ''}>{step}</span>
+          <div className="pipeline-node" key={step} data-step={index}>
+            <span
+              className={index === steps.length - 1 ? 'node-final' : `node-step-${index}`}
+            >{step}</span>
             {index < steps.length - 1 && <i className="pipeline-arrow" />}
           </div>
         ))}
