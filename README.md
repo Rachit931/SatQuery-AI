@@ -37,6 +37,34 @@ Supported capabilities:
 - Evidence and confidence
 - Web interface
 
+The current frontend is in [`app/web/src/satquery2`](app/web/src/satquery2). See its [frontend README](app/web/src/satquery2/README.md) for the technology stack, new-system setup, development commands, and production preview instructions.
+
+### Run the Frontend
+
+From the repository root, run:
+
+```powershell
+cd "app/web/src/satquery2"
+npm install
+npm run dev
+```
+
+Open the local URL printed by the development server. For a production build and local preview:
+
+```powershell
+npm run build
+npm run start
+```
+
+The frontend requires Node.js `22.13.0` or newer. Run these commands from `app/web/src/satquery2`.
+
+If PowerShell blocks `npm.ps1`, use `npm.cmd` in the commands above, for example:
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
 Main flow:
 
 Image + Query
