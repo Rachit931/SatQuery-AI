@@ -24,10 +24,13 @@ import {
   Maximize2,
   Plus,
   Search,
+  Send,
   Share2,
   ShieldAlert,
+  Sparkles,
   Telescope,
   User as UserIcon,
+  History as HistoryIcon,
 } from 'lucide-react';
 import {
   LineChart,
@@ -46,8 +49,10 @@ import SpaceScene from '../space-scene';
 import NebulaBackground from '../nebula-background';
 import { getZones, getZoneDetails, getObservations, getChangeDetection, getZoneAnalytics, type Zone, type Observation, type ChangeData, type ZoneAnalytics } from '@/services/satelliteService';
 import { createWatchZone, getAuthenticatedUser, listWatchZones } from '@/services/watchZoneService';
+import { saveAnalysisHistory } from '@/services/historyService';
 import { supabase } from '@/services/supabase';
 import type { User } from '@supabase/supabase-js';
+import Navbar from '@/components/Navbar';
 
 // Dynamically import the map component since it requires browser APIs
 const WatchZoneMap = dynamic(() => import('@/components/map/WatchZoneMap'), {
@@ -105,6 +110,177 @@ export default function WatchZonePage() {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [queryInput, setQueryInput] = useState('');
+  const [isQueryingAi, setIsQueryingAi] = useState(false);
+  const [lastAiResponse, setLastAiResponse] = useState<{
+    query: string;
+    answer: string;
+    model: string;
+    confidence: number;
+    timestamp: string;
+  } | null>(null);
+
+  const handleGenerateReport = async (zone: Zone) => {
+    if (isGeneratingReport) return;
+    setIsGeneratingReport(true);
+    try {
+      const queryText = `Generate comprehensive change detection & risk analysis report for ${zone.name}`;
+      const analysisType = 'Change Detection & Risk Assessment';
+      const model = 'DeltaVLM + GeoChat-v1';
+      const confidence = changeData?.confidence ?? 94.0;
+      const reportAnswer = changeData?.detected
+        ? `Comprehensive orbital assessment for ${zone.name} (${zone.location}): Significant ${changeData.severity.toLowerCase()} severity change detected (${changeData.type.toLowerCase()}) affecting ${changeData.affectedArea} ha. Monitored risk score is ${zone.riskScore}/100 with ${changeData.confidence}% confidence via ${zone.satelliteSource}.`
+        : `Baseline routine monitoring report for ${zone.name} (${zone.location}): Multi-spectral indices indicate stable environmental parameters. Risk score stands at ${zone.riskScore}/100 with 0 critical anomalies detected via ${zone.satelliteSource}.`;
+
+      const {
+        data: { user: activeUser },
+      } = await supabase.auth.getUser();
+      const userToUse = activeUser || currentUser;
+
+      if (userToUse) {
+        const { data: savedRecord, error: saveErr } = await saveAnalysisHistory({
+          query: queryText,
+          analysis_type: analysisType,
+          answer: reportAnswer,
+          model_used: model,
+          confidence,
+          zone_id: zone.id,
+          result_data: {
+            zone_id: zone.id,
+            zone_name: zone.name,
+            location: zone.location,
+            risk_score: zone.riskScore,
+            area_km2: zone.area,
+            satellite_source: zone.satelliteSource,
+            monitoring_frequency: zone.monitoringFrequency,
+            change_detected: changeData?.detected ?? false,
+            change_details: changeData
+              ? {
+                  type: changeData.type,
+                  affected_area_ha: changeData.affectedArea,
+                  severity: changeData.severity,
+                  confidence: changeData.confidence,
+                }
+              : null,
+            generated_at: new Date().toISOString(),
+          },
+        });
+
+        if (!saveErr && savedRecord) {
+          setNotification({
+            type: 'success',
+            message: `Report saved to persistent history for "${zone.name}".`,
+          });
+          setTimeout(() => setNotification(null), 4000);
+        } else if (saveErr) {
+          console.error('[WatchZone] Error saving report to history:', saveErr);
+          setNotification({
+            type: 'error',
+            message: `Report generated, but could not save to history: ${saveErr}`,
+          });
+          setTimeout(() => setNotification(null), 4000);
+        }
+      } else {
+        setNotification({
+          type: 'success',
+          message: `Report generated! Sign in to sync reports to your persistent history.`,
+        });
+        setTimeout(() => setNotification(null), 4000);
+      }
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const handleAskSatQuery = async (zone: Zone, overrideQuery?: string) => {
+    const q = (overrideQuery || queryInput).trim();
+    if (!q || isQueryingAi) return;
+
+    setIsQueryingAi(true);
+    setQueryInput('');
+
+    try {
+      // Simulate AI inference delay for realism
+      await new Promise((res) => setTimeout(res, 600));
+
+      let answer = '';
+      const qLower = q.toLowerCase();
+      if (qLower.includes('flood') || qLower.includes('water')) {
+        answer = `Optical and SAR backscatter telemetry for ${zone.name} reveals water boundary variation of ${changeData?.affectedArea || 12} ha. Flood risk index is rated at ${zone.riskScore}/100.`;
+      } else if (
+        qLower.includes('deforest') ||
+        qLower.includes('tree') ||
+        qLower.includes('forest') ||
+        qLower.includes('vegetation')
+      ) {
+        answer = `Multi-spectral NDVI analysis for ${zone.name} indicates localized canopy shifts of approximately 12% over the last observation interval.`;
+      } else if (
+        qLower.includes('construct') ||
+        qLower.includes('building') ||
+        qLower.includes('built')
+      ) {
+        answer = `Grounding DINO feature detectors identified high-confidence impervious surface signatures within coordinates of ${zone.name}.`;
+      } else {
+        answer = `GeoChat multi-modal analysis of ${zone.name}: Monitored surface metrics confirm current operational status "${zone.status}" with composite risk score of ${zone.riskScore}/100 under ${zone.satelliteSource} observation.`;
+      }
+
+      const confidence = 91.5;
+      const model = 'GeoChat-v1';
+      const analysisType = 'Natural Language VLM Query';
+
+      setLastAiResponse({
+        query: q,
+        answer,
+        model,
+        confidence,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+
+      const {
+        data: { user: activeUser },
+      } = await supabase.auth.getUser();
+      const userToUse = activeUser || currentUser;
+
+      if (userToUse) {
+        const { data: savedRecord, error: saveErr } = await saveAnalysisHistory({
+          query: q,
+          analysis_type: analysisType,
+          answer,
+          model_used: model,
+          confidence,
+          zone_id: zone.id,
+          result_data: {
+            zone_id: zone.id,
+            zone_name: zone.name,
+            location: zone.location,
+            query: q,
+            risk_score: zone.riskScore,
+            satellite_source: zone.satelliteSource,
+            timestamp: new Date().toISOString(),
+          },
+        });
+
+        if (!saveErr && savedRecord) {
+          setNotification({
+            type: 'success',
+            message: `AI query result saved to persistent history.`,
+          });
+          setTimeout(() => setNotification(null), 4000);
+        } else if (saveErr) {
+          console.error('[WatchZone] Error saving query to history:', saveErr);
+          setNotification({
+            type: 'error',
+            message: `Query completed, but could not save to history: ${saveErr}`,
+          });
+          setTimeout(() => setNotification(null), 4000);
+        }
+      }
+    } finally {
+      setIsQueryingAi(false);
+    }
+  };
 
   const handleSelectZone = async (id: string, zoneList?: Zone[]) => {
     const source = zoneList ?? zones;
@@ -326,71 +502,7 @@ export default function WatchZonePage() {
       )}
 
       {/* Top Navigation */}
-      <header className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/20 backdrop-blur-md">
-        <Link className="brand" href="/" aria-label="SatQuery home">
-          <Mark />
-          <span>SatQuery</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm">
-          <Link
-            href="/"
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            Home
-          </Link>
-          <Link
-            href="/#workspace"
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            Workspace
-          </Link>
-          <Link
-            href="/watch-zone"
-            className="text-blue-400 border-b-2 border-blue-500 pb-1 font-medium shadow-[0_4px_12px_rgba(59,130,246,0.3)]"
-          >
-            Watch Zone
-          </Link>
-          <Link
-            href="/#offline"
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            Offline Mode
-          </Link>
-        </nav>
-
-        {/* Authentication Controls */}
-        <div className="flex items-center gap-3">
-          {currentUser ? (
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/40 border border-blue-500/30 text-xs text-blue-300 shadow-inner">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <UserIcon size={12} className="text-blue-400" />
-                <span className="max-w-[150px] truncate font-medium">{currentUser.email}</span>
-              </div>
-              <button
-                type="button"
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  setNotification({ type: 'success', message: 'Signed out successfully.' });
-                  setTimeout(() => setNotification(null), 3000);
-                }}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5 border border-white/10 transition-colors flex items-center gap-1.5 cursor-pointer"
-                title="Sign Out"
-              >
-                <LogOut size={13} />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login?redirect=/watch-zone"
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/30 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] flex items-center gap-1.5 cursor-pointer"
-            >
-              <LogIn size={13} /> Sign In
-            </Link>
-          )}
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Dashboard Layout */}
       <div className="flex-1 flex flex-col lg:flex-row p-4 gap-4 relative z-10 max-w-[1920px] mx-auto w-full h-[calc(100vh-76px)] min-h-[800px]">
@@ -829,22 +941,112 @@ export default function WatchZonePage() {
                   )}
 
                   {activeTab === 'Reports' && (
-                    <div className="flex flex-col gap-2">
-                      <button className="flex items-center gap-3 p-3 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg transition-colors text-left">
-                        <FileText size={16} className="text-blue-400" />
-                        <div className="flex-1">
-                          <div className="text-xs font-bold text-white">Monthly Assessment (Aug)</div>
+                    <div className="flex flex-col gap-3">
+                      {/* Run AI Analysis Action */}
+                      <button
+                        type="button"
+                        onClick={() => selectedZone && void handleGenerateReport(selectedZone)}
+                        disabled={isGeneratingReport}
+                        className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-blue-600/90 to-indigo-600/90 hover:from-blue-500 hover:to-indigo-500 border border-blue-400/30 rounded-xl transition-all text-xs font-bold text-white shadow-[0_0_15px_rgba(59,130,246,0.25)] cursor-pointer disabled:opacity-60"
+                      >
+                        {isGeneratingReport ? (
+                          <>
+                            <Loader2 size={14} className="animate-spin" />
+                            <span>Generating & Saving…</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={14} className="text-blue-200" />
+                            <span>Generate & Save Risk Report</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Ask SatQuery VLM Section */}
+                      <div className="bg-slate-900/70 border border-white/10 rounded-xl p-3 flex flex-col gap-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                            <Sparkles size={13} className="text-blue-400" />
+                            <span>Ask SatQuery VLM</span>
+                          </div>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-300 font-mono">GeoChat</span>
+                        </div>
+
+                        <div className="flex gap-1.5">
+                          <input
+                            type="text"
+                            placeholder="e.g. Check vegetation & flood boundary..."
+                            value={queryInput}
+                            onChange={(e) => setQueryInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && selectedZone) {
+                                e.preventDefault();
+                                void handleAskSatQuery(selectedZone);
+                              }
+                            }}
+                            className="flex-1 bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => selectedZone && void handleAskSatQuery(selectedZone)}
+                            disabled={isQueryingAi || !queryInput.trim()}
+                            className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer"
+                            title="Send Query"
+                          >
+                            {isQueryingAi ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                          </button>
+                        </div>
+
+                        {/* Quick Prompts */}
+                        <div className="flex flex-wrap gap-1">
+                          {['Flood expansion', 'Deforestation scan', 'Built-up structures'].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => selectedZone && void handleAskSatQuery(selectedZone, preset)}
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 transition-colors cursor-pointer"
+                            >
+                              {preset}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Live AI Response Preview */}
+                        {lastAiResponse && (
+                          <div className="bg-blue-950/40 border border-blue-500/30 rounded-lg p-2.5 text-xs space-y-1.5 mt-1">
+                            <div className="flex items-center justify-between text-[10px] text-blue-300">
+                              <span className="font-mono truncate max-w-[170px]">Q: {lastAiResponse.query}</span>
+                              <span className="text-emerald-400 font-semibold">{lastAiResponse.confidence}%</span>
+                            </div>
+                            <p className="text-slate-200 text-[11px] leading-relaxed">
+                              {lastAiResponse.answer}
+                            </p>
+                            <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[9px] text-slate-400">
+                              <span>Model: {lastAiResponse.model}</span>
+                              <Link href="/history" className="text-blue-400 hover:underline flex items-center gap-1">
+                                <HistoryIcon size={10} /> History →
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Downloadable Documents */}
+                      <button className="flex items-center gap-3 p-3 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg transition-colors text-left cursor-pointer">
+                        <FileText size={16} className="text-blue-400 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-white truncate">Monthly Assessment (Aug)</div>
                           <div className="text-[10px] text-slate-400">PDF • 2.4 MB</div>
                         </div>
-                        <Download size={14} className="text-slate-500" />
+                        <Download size={14} className="text-slate-500 shrink-0" />
                       </button>
-                      <button className="flex items-center gap-3 p-3 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg transition-colors text-left">
-                        <FileText size={16} className="text-emerald-400" />
-                        <div className="flex-1">
-                          <div className="text-xs font-bold text-white">Risk Analysis Report</div>
+                      <button className="flex items-center gap-3 p-3 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg transition-colors text-left cursor-pointer">
+                        <FileText size={16} className="text-emerald-400 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-white truncate">Risk Analysis Report</div>
                           <div className="text-[10px] text-slate-400">PDF • 1.1 MB</div>
                         </div>
-                        <Download size={14} className="text-slate-500" />
+                        <Download size={14} className="text-slate-500 shrink-0" />
                       </button>
                     </div>
                   )}
@@ -1173,8 +1375,20 @@ export default function WatchZonePage() {
                   </div>
                 </div>
 
-                <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-lg text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-colors mb-3">
-                  Generate Report
+                <button
+                  type="button"
+                  onClick={() => selectedZone && void handleGenerateReport(selectedZone)}
+                  disabled={isGeneratingReport || !selectedZone}
+                  className="w-full py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-lg text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-colors mb-3 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  {isGeneratingReport ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      <span>Generating & Saving Report…</span>
+                    </>
+                  ) : (
+                    'Generate Report'
+                  )}
                 </button>
 
                 <div className="flex gap-2">

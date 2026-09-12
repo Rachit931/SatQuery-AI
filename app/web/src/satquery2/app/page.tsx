@@ -3,6 +3,7 @@ import Link from 'next/link';
 import SpaceScene from './space-scene';
 import NebulaBackground from './nebula-background';
 import TeaserSystem from './teaser-system';
+import Navbar from '@/components/Navbar';
 
 function Mark() {
   return (
@@ -17,18 +18,7 @@ export default function Home() {
     <main>
       <NebulaBackground />
       <SpaceScene />
-      <header className="site-nav">
-        <Link className="brand" href="/" aria-label="SatQuery home">
-          <Mark />
-          <span>SatQuery</span>
-        </Link>
-        <nav aria-label="Primary navigation">
-          <Link href="/">Home</Link>
-          <Link href="/#workspace">Workspace</Link>
-          <Link href="/watch-zone">Watch Zone</Link>
-          <Link href="/#offline">Offline Mode</Link>
-        </nav>
-      </header>
+      <Navbar />
       <section className="hero" id="home">
         <div className="hero-copy">
           <p className="eyebrow">
@@ -79,6 +69,7 @@ export default function Home() {
             <strong>Product</strong>
             <Link href="/#workspace">Workspace</Link>
             <Link href="/watch-zone">Watch Zone</Link>
+            <Link href="/history">History</Link>
             <Link href="/#offline">Offline Mode</Link>
           </div>
           <div>

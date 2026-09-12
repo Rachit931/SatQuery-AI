@@ -1,20 +1,13 @@
 'use client';
 
 import React, { Suspense, useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, LogOut, Shield, Telescope } from 'lucide-react';
+import { CheckCircle2, LogOut, Shield, Telescope } from 'lucide-react';
 import { supabase } from '@/services/supabase';
 import type { User } from '@supabase/supabase-js';
 import AuthForm from '@/components/AuthForm';
 
-function Mark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <i />
-    </span>
-  );
-}
+import Navbar from '@/components/Navbar';
 
 function LoginContent() {
   const router = useRouter();
@@ -63,29 +56,7 @@ function LoginContent() {
       <div className="absolute inset-0 z-0 opacity-50 pointer-events-none mix-blend-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/50 via-transparent to-transparent" />
 
       {/* Top Header */}
-      <header className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/30 backdrop-blur-md">
-        <Link className="brand" href="/" aria-label="SatQuery home">
-          <Mark />
-          <span>SatQuery</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm">
-          <Link href="/" className="text-slate-400 hover:text-white transition-colors">
-            Home
-          </Link>
-          <Link href="/#workspace" className="text-slate-400 hover:text-white transition-colors">
-            Workspace
-          </Link>
-          <Link href="/watch-zone" className="text-slate-400 hover:text-white transition-colors">
-            Watch Zone
-          </Link>
-        </nav>
-        <Link
-          href={redirectTarget}
-          className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5"
-        >
-          <ArrowLeft size={13} /> Return to App
-        </Link>
-      </header>
+      <Navbar />
 
       {/* Login Card Container */}
       <div className="flex-1 flex items-center justify-center p-4 relative z-10 my-8">
