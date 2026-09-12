@@ -16,10 +16,10 @@ const SATELLITE_ORBIT_RADIANS_PER_SECOND = 0.286;
 
 function makeSatellite() {
   const root = new THREE.Group(),
-    gunmetal = new THREE.MeshStandardMaterial({
-      color: 0x26303a,
-      metalness: 0.82,
-      roughness: 0.31,
+    matteBrown = new THREE.MeshStandardMaterial({
+      color: 0x8b4513,
+      metalness: 0.05,
+      roughness: 0.85,
     }),
     ringMetal = new THREE.MeshStandardMaterial({
       color: 0x75818b,
@@ -44,7 +44,7 @@ function makeSatellite() {
     });
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(0.29, 0.31, 0.92, 32),
-    gunmetal,
+    matteBrown,
   );
   body.rotation.z = Math.PI / 2;
   root.add(body);
@@ -202,6 +202,151 @@ function makeOrbit(radius: number, tilt: number, roll: number) {
   group.add(haloOuter, haloInner, line);
   group.rotation.set(tilt, 0.04, roll);
   return group;
+}
+
+const TRAIL_SEGMENTS = 70;
+const TRAIL_ARC = 0.85;
+
+function makeSatelliteTrail() {
+  const group = new THREE.Group();
+
+  const ribbonPositions = new Float32Array((TRAIL_SEGMENTS + 1) * 2 * 3);
+  const ribbonColors = new Float32Array((TRAIL_SEGMENTS + 1) * 2 * 3);
+  const ribbonIndices: number[] = [];
+
+  for (let i = 0; i < TRAIL_SEGMENTS; i++) {
+    const a = i * 2;
+    const b = i * 2 + 1;
+    const c = (i + 1) * 2;
+    const d = (i + 1) * 2 + 1;
+    ribbonIndices.push(a, b, c);
+    ribbonIndices.push(b, d, c);
+  }
+
+  const ribbonGeo = new THREE.BufferGeometry();
+  ribbonGeo.setAttribute('position', new THREE.BufferAttribute(ribbonPositions, 3));
+  ribbonGeo.setAttribute('color', new THREE.BufferAttribute(ribbonColors, 3));
+  ribbonGeo.setIndex(ribbonIndices);
+
+  const ribbonMat = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.95,
+    blending: THREE.AdditiveBlending,
+    depthTest: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
+  const ribbonMesh = new THREE.Mesh(ribbonGeo, ribbonMat);
+
+  const glowPositions = new Float32Array((TRAIL_SEGMENTS + 1) * 2 * 3);
+  const glowColors = new Float32Array((TRAIL_SEGMENTS + 1) * 2 * 3);
+  const glowGeo = new THREE.BufferGeometry();
+  glowGeo.setAttribute('position', new THREE.BufferAttribute(glowPositions, 3));
+  glowGeo.setAttribute('color', new THREE.BufferAttribute(glowColors, 3));
+  glowGeo.setIndex(ribbonIndices);
+
+  const glowMat = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.45,
+    blending: THREE.AdditiveBlending,
+    depthTest: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
+  const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+
+  const linePositions = new Float32Array((TRAIL_SEGMENTS + 1) * 3);
+  const lineColors = new Float32Array((TRAIL_SEGMENTS + 1) * 3);
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  lineGeo.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
+
+  const lineMat = new THREE.LineBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 1,
+    blending: THREE.AdditiveBlending,
+    depthTest: true,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const coreLine = new THREE.Line(lineGeo, lineMat);
+
+  group.add(glowMesh, ribbonMesh, coreLine);
+
+  const update = (currentPhase: number) => {
+    const R = 2.78;
+    for (let i = 0; i <= TRAIL_SEGMENTS; i++) {
+      const u = i / TRAIL_SEGMENTS;
+      const angle = currentPhase - u * TRAIL_ARC;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+
+      const alpha = Math.pow(1 - u, 1.8);
+      const wRibbon = 0.026 * Math.pow(1 - u, 1.2);
+      const wGlow = 0.065 * Math.pow(1 - u, 1.4);
+
+      const idx2 = i * 6;
+      ribbonPositions[idx2] = (R - wRibbon) * cosA;
+      ribbonPositions[idx2 + 1] = (R - wRibbon) * sinA;
+      ribbonPositions[idx2 + 2] = 0;
+      ribbonPositions[idx2 + 3] = (R + wRibbon) * cosA;
+      ribbonPositions[idx2 + 4] = (R + wRibbon) * sinA;
+      ribbonPositions[idx2 + 5] = 0;
+
+      ribbonColors[idx2] = 0;
+      ribbonColors[idx2 + 1] = alpha;
+      ribbonColors[idx2 + 2] = alpha;
+      ribbonColors[idx2 + 3] = 0;
+      ribbonColors[idx2 + 4] = alpha;
+      ribbonColors[idx2 + 5] = alpha;
+
+      glowPositions[idx2] = (R - wGlow) * cosA;
+      glowPositions[idx2 + 1] = (R - wGlow) * sinA;
+      glowPositions[idx2 + 2] = 0;
+      glowPositions[idx2 + 3] = (R + wGlow) * cosA;
+      glowPositions[idx2 + 4] = (R + wGlow) * sinA;
+      glowPositions[idx2 + 5] = 0;
+
+      glowColors[idx2] = 0;
+      glowColors[idx2 + 1] = alpha * 0.45;
+      glowColors[idx2 + 2] = alpha * 0.45;
+      glowColors[idx2 + 3] = 0;
+      glowColors[idx2 + 4] = alpha * 0.45;
+      glowColors[idx2 + 5] = alpha * 0.45;
+
+      const idxLine = i * 3;
+      linePositions[idxLine] = R * cosA;
+      linePositions[idxLine + 1] = R * sinA;
+      linePositions[idxLine + 2] = 0;
+
+      lineColors[idxLine] = 0;
+      lineColors[idxLine + 1] = alpha * 1.1;
+      lineColors[idxLine + 2] = alpha * 1.1;
+    }
+
+    ribbonGeo.attributes.position.needsUpdate = true;
+    ribbonGeo.attributes.color.needsUpdate = true;
+    glowGeo.attributes.position.needsUpdate = true;
+    glowGeo.attributes.color.needsUpdate = true;
+    lineGeo.attributes.position.needsUpdate = true;
+    lineGeo.attributes.color.needsUpdate = true;
+  };
+
+  const dispose = () => {
+    ribbonGeo.dispose();
+    ribbonMat.dispose();
+    glowGeo.dispose();
+    glowMat.dispose();
+    lineGeo.dispose();
+    lineMat.dispose();
+  };
+
+  return { group, update, dispose };
 }
 
 function makeTerrainLayer(
@@ -417,6 +562,9 @@ export default function SpaceScene() {
     const satellite = makeSatellite();
     satellite.scale.setScalar(0.7);
     orbitA.add(satellite);
+    const satelliteTrail = makeSatelliteTrail();
+    orbitA.add(satelliteTrail.group);
+    satelliteTrail.update(0);
     scene.add(new THREE.AmbientLight(0x8294bc, 1.15));
     const key = new THREE.DirectionalLight(0xffffff, 4.5);
     key.position.set(-5, 5, 6);
@@ -561,6 +709,7 @@ export default function SpaceScene() {
           0,
         );
         satellite.rotation.set(0, 0, orbitPhase + Math.PI / 2);
+        satelliteTrail.update(orbitPhase);
       }
       const t = reduced ? 0.13 : performance.now() * 0.000025;
       const p1 = orbitA.localToWorld(
@@ -603,6 +752,7 @@ export default function SpaceScene() {
       });
       cancelAnimationFrame(frame);
       removeEventListener('resize', resize);
+      satelliteTrail.dispose();
       [day, night, clouds].forEach((t) => t.dispose());
       renderer.dispose();
       scene.traverse((o) => {
