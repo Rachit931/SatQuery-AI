@@ -1,6 +1,3 @@
-def main():
-    print("Hello from satquery-ai!")
+from api.main import app
 
-
-if __name__ == "__main__":
-    main()
+__all__ = ["app"]
