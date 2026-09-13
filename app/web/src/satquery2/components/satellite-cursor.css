@@ -1,0 +1,45 @@
+/* ──────────────────────────────────────────────────────────────
+   SECONDARY SATELLITE TRACKING CURSOR DOT
+   3px Acid Lime dot following pointer with subtle lag.
+   Visible ONLY over interactive geospatial elements.
+   Disabled completely on touch/mobile.
+   ────────────────────────────────────────────────────────────── */
+
+.satellite-tracking-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+}
+
+.satellite-cursor-dot {
+  display: block;
+  position: absolute;
+  top: -1.5px;
+  left: -1.5px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #B7D84B;
+  box-shadow: 
+    0 0 6px rgba(183, 216, 75, 0.85),
+    0 0 12px rgba(183, 216, 75, 0.4);
+  opacity: 0;
+  transform: scale(0.3);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.satellite-tracking-cursor.is-active .satellite-cursor-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Touch & Mobile Guard: completely remove cursor element */
+@media (hover: none) or (pointer: coarse) {
+  .satellite-tracking-cursor {
+    display: none !important;
+  }
+}

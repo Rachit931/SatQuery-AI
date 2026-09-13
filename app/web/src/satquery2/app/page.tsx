@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Search } from 'lucide-react';
 import Link from 'next/link';
 import SpaceScene from './space-scene';
 import NebulaBackground from './nebula-background';
@@ -16,13 +16,14 @@ function Mark() {
 export default function Home() {
   return (
     <main>
+      <SatelliteCursor />
       <NebulaBackground />
       <SpaceScene />
       <Navbar />
       <section className="hero" id="home">
         <div className="hero-copy">
           <p className="eyebrow">
-            <span /> Earth intelligence, made clear
+            <span /> Earth intelligence. Made clear
           </p>
           <h1>
             See Earth.
@@ -33,7 +34,7 @@ export default function Home() {
             Explore satellite imagery, monitor your regions, and take insights
             into the field.
           </p>
-          <a className="primary-cta" href="#workspace">
+          <a className="primary-cta" href="#workspace" data-sat-interactive="cta">
             Explore Workspace <ArrowUpRight size={17} />
           </a>
         </div>
