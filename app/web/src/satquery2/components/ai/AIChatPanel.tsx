@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Image as ImageIcon, Plus, Search, MapPin, Menu, Paperclip } from 'lucide-react';
+import { Send, Plus, Search, MapPin, Menu, Paperclip, X } from 'lucide-react';
 import { useAIContext } from '../../services/aiContextBridge';
 import { aiProvider, ChatMessage } from '../../services/aiProvider';
 
@@ -11,8 +11,10 @@ export default function AIChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile1, setImageFile1] = useState<File | null>(null);
+  const [imageFile2, setImageFile2] = useState<File | null>(null);
+  const [imagePreview1, setImagePreview1] = useState<string | null>(null);
+  const [imagePreview2, setImagePreview2] = useState<string | null>(null);
   const [attachedZone, setAttachedZone] = useState<any>(null);
   const [showZoneDropdown, setShowZoneDropdown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -21,17 +23,25 @@ export default function AIChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (slot: 1 | 2, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         alert("Image exceeds the supported size (5MB).");
         return;
       }
-      setImageFile(file);
+      if (slot === 1) {
+        setImageFile1(file);
+      } else {
+        setImageFile2(file);
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        if (slot === 1) {
+          setImagePreview1(reader.result as string);
+        } else {
+          setImagePreview2(reader.result as string);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -54,7 +64,7 @@ export default function AIChatPanel() {
 
   const handleSend = async (quickPrompt?: string) => {
     const messageText = quickPrompt || input;
-    if (!messageText.trim() && !imageFile && !attachedZone) return;
+    if (!messageText.trim() && !imageFile1 && !attachedZone) return;
 
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -72,7 +82,8 @@ export default function AIChatPanel() {
         message: messageText,
         mapContext: attachedZone || mapContext,
         watchZoneContext: watchZoneContext,
-        image: imageFile,
+        imageFile1,
+        imageFile2,
       });
       
       const aiReply: ChatMessage = {
@@ -83,8 +94,10 @@ export default function AIChatPanel() {
       };
       
       setMessages((prev) => [...prev, aiReply]);
-      setImageFile(null);
-      setImagePreview(null);
+      setImageFile1(null);
+      setImageFile2(null);
+      setImagePreview1(null);
+      setImagePreview2(null);
       setAttachedZone(null);
     } catch (error) {
       const errReply: ChatMessage = {
@@ -108,8 +121,10 @@ export default function AIChatPanel() {
 
   const clearChat = () => {
     setMessages([]);
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFile1(null);
+    setImageFile2(null);
+    setImagePreview1(null);
+    setImagePreview2(null);
     setAttachedZone(null);
   };
 
@@ -240,7 +255,7 @@ export default function AIChatPanel() {
                   <span className="text-blue-200">
                     Attached Zone: {attachedZone.name ? attachedZone.name : `[${attachedZone.center?.lat?.toFixed(2)}, ${attachedZone.center?.lng?.toFixed(2)}]`}
                   </span>
-                  <button 
+                  <button
                     onClick={() => setAttachedZone(null)}
                     className="ml-2 text-slate-400 hover:text-white"
                   >
@@ -249,12 +264,26 @@ export default function AIChatPanel() {
                 </div>
               )}
 
-              {imagePreview && (
+              {imagePreview1 && (
                 <div className="mb-2 relative inline-block">
-                  <img src={imagePreview} alt="Upload preview" className="h-12 rounded-lg border border-white/20 object-cover" />
-                  <button 
-                    onClick={() => { setImageFile(null); setImagePreview(null); }}
+                  <img src={imagePreview1} alt="Image 1 preview" className="h-12 rounded-lg border border-white/20 object-cover" />
+                  <button
+                    onClick={() => { setImageFile1(null); setImagePreview1(null); }}
                     className="absolute -top-2 -right-2 bg-slate-800 border border-white/10 rounded-full p-1 text-slate-400 hover:text-white shadow-lg"
+                    aria-label="Remove image 1"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
+              {imagePreview2 && (
+                <div className="mb-2 relative inline-block">
+                  <img src={imagePreview2} alt="Image 2 preview" className="h-12 rounded-lg border border-white/20 object-cover" />
+                  <button
+                    onClick={() => { setImageFile2(null); setImagePreview2(null); }}
+                    className="absolute -top-2 -right-2 bg-slate-800 border border-white/10 rounded-full p-1 text-slate-400 hover:text-white shadow-lg"
+                    aria-label="Remove image 2"
                   >
                     <X size={12} />
                   </button>
@@ -263,9 +292,13 @@ export default function AIChatPanel() {
             </div>
 
             <div className="relative flex items-center bg-[#0a0d14]/90 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl overflow-hidden focus-within:border-blue-500/50 transition-colors">
-              <label className="p-3 pl-4 cursor-pointer text-slate-400 hover:text-white transition-colors">
+              <label className="p-3 pl-4 cursor-pointer text-slate-400 hover:text-white transition-colors" title="Attach image 1">
                 <Paperclip size={18} />
-                <input type="file" accept="image/png, image/jpeg" className="hidden" onChange={handleImageUpload} />
+                <input type="file" accept="image/png, image/jpeg" className="hidden" onChange={(e) => handleImageUpload(1, e)} />
+              </label>
+              <label className={`p-3 cursor-pointer transition-colors ${imageFile1 ? 'text-slate-400 hover:text-white' : 'text-slate-600 cursor-not-allowed'}`} title="Attach image 2">
+                <Paperclip size={18} />
+                <input type="file" accept="image/png, image/jpeg" className="hidden" disabled={!imageFile1} onChange={(e) => handleImageUpload(2, e)} />
               </label>
               
               <div className="relative">
@@ -312,9 +345,9 @@ export default function AIChatPanel() {
               
               <button
                 onClick={() => void handleSend()}
-                disabled={!input.trim() && !imageFile && !attachedZone}
+                disabled={!input.trim() && !imageFile1 && !attachedZone}
                 className={`p-4 transition-colors ${
-                  (!input.trim() && !imageFile && !attachedZone) 
+                  (!input.trim() && !imageFile1 && !attachedZone)
                     ? 'text-slate-600' 
                     : 'text-blue-500 hover:text-blue-400'
                 }`}
