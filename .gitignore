@@ -217,3 +217,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local model repository / weights (large download)
+/models/geochat-7B/
+GroundingDINO/

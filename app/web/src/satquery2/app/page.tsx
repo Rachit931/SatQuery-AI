@@ -3,6 +3,8 @@ import Link from 'next/link';
 import SpaceScene from './space-scene';
 import NebulaBackground from './nebula-background';
 import TeaserSystem from './teaser-system';
+import SatelliteCursor from '../components/satellite-cursor';
+import NavSignIn from '../components/nav-signin';
 import Navbar from '@/components/Navbar';
 
 function Mark() {

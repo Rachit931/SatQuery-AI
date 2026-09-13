@@ -117,11 +117,17 @@ class GeoChatLlamaForCausalLM(LlamaForCausalLM, GeoChatMetaForCausalLM):
     def prepare_inputs_for_generation(
         self, input_ids, past_key_values=None, attention_mask=None, inputs_embeds=None, **kwargs
     ):
-        if past_key_values:
+        has_past = False
+        if past_key_values is not None:
+            if hasattr(past_key_values, "get_seq_length"):
+                has_past = past_key_values.get_seq_length() > 0
+            else:
+                has_past = bool(past_key_values) and past_key_values[0] is not None
+        if has_past:
             input_ids = input_ids[:, -1:]
 
         # if `inputs_embeds` are passed, we only want to use them in the 1st generation step
-        if inputs_embeds is not None and past_key_values is None:
+        if inputs_embeds is not None and not has_past:
             model_inputs = {"inputs_embeds": inputs_embeds}
         else:
             model_inputs = {"input_ids": input_ids}

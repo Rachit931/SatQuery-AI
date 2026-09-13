@@ -23,29 +23,23 @@ export interface AIAnalysisRequest {
   mapContext?: MapContext;
   watchZoneContext?: WatchZoneContext | null;
   imageryContext?: any;
-  image?: File | null;
+  imageFile1?: File | null;
+  imageFile2?: File | null;
 }
 
 export const aiProvider = {
   async analyzeConversation(request: AIAnalysisRequest): Promise<string> {
     try {
       const formData = new FormData();
-      formData.append('message', request.message);
-      
-      if (request.conversationId) {
-        formData.append('conversationId', request.conversationId);
+      formData.append('query', request.message);
+      if (request.imageFile1) {
+        formData.append('image1', request.imageFile1);
       }
-      if (request.mapContext) {
-        formData.append('mapContext', JSON.stringify(request.mapContext));
-      }
-      if (request.watchZoneContext) {
-        formData.append('watchZoneContext', JSON.stringify(request.watchZoneContext));
-      }
-      if (request.image) {
-        formData.append('image', request.image);
+      if (request.imageFile2) {
+        formData.append('image2', request.imageFile2);
       }
 
-      const response = await fetch('/api/ai/chat', {
+      const response = await fetch('http://127.0.0.1:8000/query', {
         method: 'POST',
         body: formData,
       });
@@ -55,7 +49,7 @@ export const aiProvider = {
       }
 
       const data = await response.json() as any;
-      return data.reply || 'Analysis complete.';
+      return data.answer || 'Analysis complete.';
     } catch (error) {
       console.error('AI Provider Error:', error);
       throw error;
