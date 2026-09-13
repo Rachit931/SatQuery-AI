@@ -17,6 +17,40 @@ L.Icon.Default.mergeOptions({
     'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Fix Leaflet-Draw 1.0.4 bug: undeclared 'type' variable in readableArea throws ReferenceError in strict mode
+type GeometryUtilWithReadableArea = {
+  readableArea?: (area: number, isMetric?: unknown, precision?: unknown) => string;
+};
+type DrawClassWithProto = {
+  prototype: {
+    options: {
+      showArea?: boolean;
+    };
+  };
+};
+
+const extendedL = L as unknown as {
+  GeometryUtil?: GeometryUtilWithReadableArea;
+  Draw?: {
+    Polygon?: DrawClassWithProto;
+    Rectangle?: DrawClassWithProto;
+  };
+};
+
+if (typeof window !== 'undefined' && extendedL.GeometryUtil) {
+  extendedL.GeometryUtil.readableArea = function () {
+    return '';
+  };
+}
+if (typeof window !== 'undefined' && extendedL.Draw) {
+  if (extendedL.Draw.Polygon) {
+    extendedL.Draw.Polygon.prototype.options.showArea = false;
+  }
+  if (extendedL.Draw.Rectangle) {
+    extendedL.Draw.Rectangle.prototype.options.showArea = false;
+  }
+}
+
 interface WatchZoneMapProps {
   onZoneCreated?: (layer: any) => void;
   selectedZoneGeometry?: any;
@@ -90,6 +124,7 @@ export default function WatchZoneMap({
         },
         draw: {
           polygon: {
+            showArea: false,
             shapeOptions: {
               color: '#00f7ff',
               fillColor: '#00aeff',
@@ -98,6 +133,7 @@ export default function WatchZoneMap({
             },
           },
           rectangle: {
+            showArea: false,
             shapeOptions: {
               color: '#00f7ff',
               fillColor: '#00aeff',

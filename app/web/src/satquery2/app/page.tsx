@@ -3,11 +3,7 @@ import Link from 'next/link';
 import SpaceScene from './space-scene';
 import NebulaBackground from './nebula-background';
 import TeaserSystem from './teaser-system';
-import OrbitalDivider from '../components/orbital-divider';
-import AboutSatQuery from '../components/about-satquery';
-import NavSignIn from '../components/nav-signin';
-import SiteFooter from '../components/site-footer';
-import SatelliteCursor from '../components/satellite-cursor';
+import Navbar from '@/components/Navbar';
 
 function Mark() {
   return (
@@ -67,11 +63,53 @@ export default function Home() {
 
       <TeaserSystem />
 
-      <OrbitalDivider />
-
-      <AboutSatQuery />
-
-      <SiteFooter />
+      <footer id="footer">
+        <div className="footer-content">
+          <a className="brand" href="#home">
+            <Mark />
+            <span>SatQuery</span>
+          </a>
+          <p>Satellite intelligence for decisions that happen on the ground.</p>
+          <div className="social-links" aria-label="Social links">
+            <a href="#footer" aria-label="SatQuery on LinkedIn">
+              <span aria-hidden="true">in</span>
+            </a>
+            <a href="#footer" aria-label="SatQuery on Instagram">
+              <span aria-hidden="true">◎</span>
+            </a>
+            <a href="#footer" aria-label="SatQuery on YouTube">
+              <span aria-hidden="true">▶</span>
+            </a>
+          </div>
+        </div>
+        <div className="footer-links">
+          <div>
+            <strong>Product</strong>
+            <Link href="/#workspace">Workspace</Link>
+            <Link href="/watch-zone">Watch Zone</Link>
+            <Link href="/history">History</Link>
+            <Link href="/#offline">Offline Mode</Link>
+          </div>
+          <div>
+            <strong>Explore</strong>
+            <a href="#analysis">Analysis</a>
+            <a href="#home">About</a>
+            <a href="mailto:hello@satquery.com">Contact</a>
+          </div>
+          <div>
+            <strong>Company</strong>
+            <a href="#home">Mission</a>
+            <a href="#footer">Journal</a>
+            <a href="mailto:hello@satquery.com">Careers</a>
+          </div>
+        </div>
+        <div className="satellite-landing" aria-hidden="true">
+          <span>Satellite dock</span>
+        </div>
+        <p className="copyright">
+          © 2026 SatQuery. Earth intelligence, made clear.
+        </p>
+      </footer>
     </main>
   );
 }
