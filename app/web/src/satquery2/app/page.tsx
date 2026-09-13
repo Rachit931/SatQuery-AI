@@ -19,7 +19,24 @@ export default function Home() {
       <SatelliteCursor />
       <NebulaBackground />
       <SpaceScene />
-      <Navbar />
+      <header className="site-nav">
+        <Link className="brand" href="/" aria-label="SatQuery home" data-sat-interactive="nav">
+          <Mark />
+          <span>SatQuery</span>
+        </Link>
+        <nav aria-label="Primary navigation">
+          <Link href="/" data-sat-interactive="nav">Home</Link>
+          <Link href="/workspace" data-sat-interactive="nav">Workspace</Link>
+          <Link href="/watch-zone" data-sat-interactive="nav">Watch Zone</Link>
+          <Link href="/workspace" data-sat-interactive="nav">Offline Mode</Link>
+          <Link href="/#history" data-sat-interactive="nav">History</Link>
+          <button type="button" className="nav-search-btn" aria-label="Search" data-sat-interactive="nav">
+            <Search size={16} />
+          </button>
+          <span className="nav-divider" aria-hidden="true" />
+          <NavSignIn />
+        </nav>
+      </header>
       <section className="hero" id="home">
         <div className="hero-copy">
           <p className="eyebrow">
@@ -34,9 +51,9 @@ export default function Home() {
             Explore satellite imagery, monitor your regions, and take insights
             into the field.
           </p>
-          <a className="primary-cta" href="#workspace" data-sat-interactive="cta">
+          <Link className="primary-cta" href="/workspace" data-sat-interactive="cta">
             Explore Workspace <ArrowUpRight size={17} />
-          </a>
+          </Link>
         </div>
         <p className="scroll-cue">
           <span>Scroll to explore</span>
