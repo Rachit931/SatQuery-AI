@@ -8,9 +8,9 @@ const earthVertex = `varying vec2 vUv; varying vec3 vNormalW; varying vec3 vView
 const earthFragment = `uniform sampler2D dayMap;uniform sampler2D nightMap;uniform vec3 sunDirection;varying vec2 vUv;varying vec3 vNormalW;varying vec3 vViewDir;
 void main(){vec3 n=normalize(vNormalW);float ndl=dot(n,normalize(sunDirection));float daylight=smoothstep(-.16,.3,ndl);vec3 day=texture2D(dayMap,vUv).rgb;day=pow(day,vec3(.94));float diffuse=.2+max(ndl,0.)*.95;float oceanHint=smoothstep(.16,.02,day.r-day.b);float spec=pow(max(dot(reflect(-normalize(sunDirection),n),vViewDir),0.),48.)*oceanHint*max(ndl,0.);vec3 night=texture2D(nightMap,vUv).rgb*1.28;vec3 color=mix(night,day*diffuse,daylight);color+=spec*vec3(.48,.62,.78);gl_FragColor=vec4(color,1.);}`;
 const atmosphereVertex = `varying vec3 vNormalW;varying vec3 vViewDir;void main(){vec4 world=modelMatrix*vec4(position,1.);vNormalW=normalize(mat3(modelMatrix)*normal);vViewDir=normalize(cameraPosition-world.xyz);gl_Position=projectionMatrix*viewMatrix*world;}`;
-const atmosphereFragment = `uniform vec3 sunDirection;varying vec3 vNormalW;varying vec3 vViewDir;void main(){float rim=pow(1.-abs(dot(normalize(vNormalW),normalize(vViewDir))),3.7);float sun=mix(.28,1.,smoothstep(-.15,.6,dot(normalize(vNormalW),normalize(sunDirection))));gl_FragColor=vec4(vec3(.16,.65,1.),rim*sun*.58);}`;
+const atmosphereFragment = `uniform vec3 sunDirection;varying vec3 vNormalW;varying vec3 vViewDir;void main(){float rim=pow(1.-abs(dot(normalize(vNormalW),normalize(vViewDir))),4.2);float sun=mix(.25,1.,smoothstep(-.15,.6,dot(normalize(vNormalW),normalize(sunDirection))));gl_FragColor=vec4(vec3(0.357,0.784,0.745),rim*sun*.38);}`;
 const sunriseVertex = `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const sunriseFragment = `varying vec2 vUv;void main(){vec2 p=vUv-.5;float halo=exp(-dot(p*vec2(2.15,2.8),p*vec2(2.15,2.8))*8.5);float core=exp(-dot(p*vec2(7.5,9.5),p*vec2(7.5,9.5))*18.);float streak=exp(-abs(p.y)*82.)*exp(-abs(p.x)*4.8);float upperRay=exp(-abs(p.y-p.x*.14)*34.)*exp(-abs(p.x)*6.5)*.16;float alpha=halo*.28+core*1.2+streak*.32+upperRay;vec3 icy=mix(vec3(.16,.52,1.),vec3(1.),clamp(core*1.8+streak*.7,0.,1.));gl_FragColor=vec4(icy,alpha);}`;
+const sunriseFragment = `varying vec2 vUv;void main(){vec2 p=vUv-.5;float halo=exp(-dot(p*vec2(2.15,2.8),p*vec2(2.15,2.8))*8.5);float core=exp(-dot(p*vec2(7.5,9.5),p*vec2(7.5,9.5))*18.);float streak=exp(-abs(p.y)*82.)*exp(-abs(p.x)*4.8);float upperRay=exp(-abs(p.y-p.x*.14)*34.)*exp(-abs(p.x)*6.5)*.16;float alpha=halo*.28+core*1.2+streak*.32+upperRay;vec3 icy=mix(vec3(0.357,0.784,0.745),vec3(1.),clamp(core*1.8+streak*.7,0.,1.));gl_FragColor=vec4(icy,alpha);}`;
 const EARTH_ROTATION_SECONDS = 60;
 const SATELLITE_ORBIT_RADIANS_PER_SECOND = 0.286;
 
@@ -136,8 +136,8 @@ function makeOrbit(radius: number, tilt: number, roll: number) {
   const group = new THREE.Group();
   const positions: number[] = [],
     colors: number[] = [];
-  const coreBlue = new THREE.Color(0x599fcb),
-    dimBlue = new THREE.Color(0x287bb5),
+  const tealMuted = new THREE.Color(0x5bc8be),
+    dimTeal = new THREE.Color(0x38827c),
     curvePoints: THREE.Vector3[] = [];
   for (let i = 0; i <= 280; i++) {
     const a = (i / 280) * Math.PI * 2;
@@ -145,10 +145,10 @@ function makeOrbit(radius: number, tilt: number, roll: number) {
     curvePoints.push(
       new THREE.Vector3(Math.cos(a) * radius, Math.sin(a) * radius, 0),
     );
-    const color = dimBlue
+    const color = dimTeal
       .clone()
-      .lerp(coreBlue, 0.58 + 0.3 * Math.sin(a * 2.15));
-    const intensity = 0.34 + 0.48 * Math.pow(0.5 + 0.5 * Math.cos(a - 0.42), 2);
+      .lerp(tealMuted, 0.58 + 0.3 * Math.sin(a * 2.15));
+    const intensity = 0.3 + 0.4 * Math.pow(0.5 + 0.5 * Math.cos(a - 0.42), 2);
     colors.push(color.r * intensity, color.g * intensity, color.b * intensity);
   }
   const geometry = new THREE.BufferGeometry();
@@ -162,7 +162,7 @@ function makeOrbit(radius: number, tilt: number, roll: number) {
     new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.55,
       depthTest: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -176,11 +176,11 @@ function makeOrbit(radius: number, tilt: number, roll: number) {
     0.15,
   );
   const haloOuter = new THREE.Mesh(
-    new THREE.TubeGeometry(path, 220, 0.026, 5, true),
+    new THREE.TubeGeometry(path, 220, 0.015, 5, true),
     new THREE.MeshBasicMaterial({
-      color: 0x287bb5,
+      color: 0x5bc8be,
       transparent: true,
-      opacity: 0.035,
+      opacity: 0.018,
       depthTest: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -188,11 +188,11 @@ function makeOrbit(radius: number, tilt: number, roll: number) {
     }),
   );
   const haloInner = new THREE.Mesh(
-    new THREE.TubeGeometry(path, 220, 0.013, 5, true),
+    new THREE.TubeGeometry(path, 220, 0.008, 5, true),
     new THREE.MeshBasicMaterial({
-      color: 0x287bb5,
+      color: 0x5bc8be,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.045,
       depthTest: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -298,12 +298,16 @@ function makeSatelliteTrail() {
       ribbonPositions[idx2 + 4] = (R + wRibbon) * sinA;
       ribbonPositions[idx2 + 5] = 0;
 
-      ribbonColors[idx2] = 0;
-      ribbonColors[idx2 + 1] = alpha;
-      ribbonColors[idx2 + 2] = alpha;
-      ribbonColors[idx2 + 3] = 0;
-      ribbonColors[idx2 + 4] = alpha;
-      ribbonColors[idx2 + 5] = alpha;
+      const tealR = 0.357;
+      const tealG = 0.784;
+      const tealB = 0.745;
+
+      ribbonColors[idx2] = tealR * alpha * 0.85;
+      ribbonColors[idx2 + 1] = tealG * alpha * 0.85;
+      ribbonColors[idx2 + 2] = tealB * alpha * 0.85;
+      ribbonColors[idx2 + 3] = tealR * alpha * 0.85;
+      ribbonColors[idx2 + 4] = tealG * alpha * 0.85;
+      ribbonColors[idx2 + 5] = tealB * alpha * 0.85;
 
       glowPositions[idx2] = (R - wGlow) * cosA;
       glowPositions[idx2 + 1] = (R - wGlow) * sinA;
@@ -312,21 +316,21 @@ function makeSatelliteTrail() {
       glowPositions[idx2 + 4] = (R + wGlow) * sinA;
       glowPositions[idx2 + 5] = 0;
 
-      glowColors[idx2] = 0;
-      glowColors[idx2 + 1] = alpha * 0.45;
-      glowColors[idx2 + 2] = alpha * 0.45;
-      glowColors[idx2 + 3] = 0;
-      glowColors[idx2 + 4] = alpha * 0.45;
-      glowColors[idx2 + 5] = alpha * 0.45;
+      glowColors[idx2] = tealR * alpha * 0.3;
+      glowColors[idx2 + 1] = tealG * alpha * 0.3;
+      glowColors[idx2 + 2] = tealB * alpha * 0.3;
+      glowColors[idx2 + 3] = tealR * alpha * 0.3;
+      glowColors[idx2 + 4] = tealG * alpha * 0.3;
+      glowColors[idx2 + 5] = tealB * alpha * 0.3;
 
       const idxLine = i * 3;
       linePositions[idxLine] = R * cosA;
       linePositions[idxLine + 1] = R * sinA;
       linePositions[idxLine + 2] = 0;
 
-      lineColors[idxLine] = 0;
-      lineColors[idxLine + 1] = alpha * 1.1;
-      lineColors[idxLine + 2] = alpha * 1.1;
+      lineColors[idxLine] = tealR * alpha * 0.9;
+      lineColors[idxLine + 1] = tealG * alpha * 0.9;
+      lineColors[idxLine + 2] = tealB * alpha * 0.9;
     }
 
     ribbonGeo.attributes.position.needsUpdate = true;
@@ -383,7 +387,7 @@ function makeTerrainLayer(
   const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), material);
   mesh.position.z = z;
   const rimMat = new THREE.LineBasicMaterial({
-    color: 0xb88a44,
+    color: 0x303a35,
     transparent: true,
     opacity: 0,
     blending: THREE.AdditiveBlending,
@@ -501,11 +505,11 @@ export default function SpaceScene() {
     orbits.add(orbitA, orbitB);
     orbits.position.copy(earth.position);
     scene.add(orbits);
-    const markerGeo = new THREE.SphereGeometry(0.018, 10, 10),
+    const markerGeo = new THREE.SphereGeometry(0.016, 10, 10),
       markerMat = new THREE.MeshBasicMaterial({
-        color: 0x599fcb,
+        color: 0x5bc8be,
         transparent: true,
-        opacity: 0.28,
+        opacity: 0.35,
         toneMapped: false,
       }),
       markerA = new THREE.Mesh(markerGeo, markerMat),
@@ -523,7 +527,7 @@ export default function SpaceScene() {
       0.6,
     );
     const footerTrailMat = new THREE.LineBasicMaterial({
-      color: 0x5eaaff,
+      color: 0x5bc8be,
       transparent: true,
       opacity: 0,
       depthWrite: false,
@@ -534,8 +538,8 @@ export default function SpaceScene() {
       footerTrailMat,
     );
     scene.add(footerTrail);
-    const terrainBack = makeTerrainLayer(-2.12, 0x151a1d, -0.18, 0.4),
-      terrainFront = makeTerrainLayer(-2.48, 0x090d10, 0.18, 2.1);
+    const terrainBack = makeTerrainLayer(-2.12, 0x222925, -0.18, 0.4),
+      terrainFront = makeTerrainLayer(-2.48, 0x171c1a, 0.18, 2.1);
     scene.add(
       terrainBack.mesh,
       terrainBack.rim,
@@ -543,7 +547,7 @@ export default function SpaceScene() {
       terrainFront.rim,
     );
     const footerPointMat = new THREE.MeshBasicMaterial({
-        color: 0xd8b978,
+        color: 0xb7d84b,
         transparent: true,
         opacity: 0,
         toneMapped: false,
@@ -569,7 +573,7 @@ export default function SpaceScene() {
     const key = new THREE.DirectionalLight(0xffffff, 4.5);
     key.position.set(-5, 5, 6);
     scene.add(key);
-    const warmRim = new THREE.PointLight(0xd8a85d, 0, 4.5, 2);
+    const warmRim = new THREE.PointLight(0x5bc8be, 0, 4.5, 2);
     warmRim.position.set(3, -0.95, 1.5);
     scene.add(warmRim);
     const starGeo = new THREE.BufferGeometry(),

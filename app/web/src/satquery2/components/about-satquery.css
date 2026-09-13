@@ -1,0 +1,928 @@
+/* About SatQuery & How to Use Flow - Two Connected Parts, Existing Background Continuous */
+
+.about-section {
+  position: relative;
+  background: transparent;
+  padding: 100px clamp(24px, 5vw, 84px) 70px;
+  overflow: visible;
+  z-index: 2;
+}
+
+.about-container {
+  position: relative;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  background: transparent;
+}
+
+/* ================================================== */
+/* PART 1: ABOUT SATQUERY + WHAT YOU CAN DO           */
+/* ================================================== */
+
+.about-part-one {
+  position: relative;
+  background: transparent;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: clamp(40px, 6vw, 88px);
+  align-items: start;
+}
+
+/* -------------------------------------------------- */
+/* PART 1 — LEFT SIDE                                 */
+/* -------------------------------------------------- */
+
+.about-col-left {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Small label: ABOUT SATQUERY */
+.about-eyebrow-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  will-change: transform, opacity;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.about-eyebrow-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #5BC8BE;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+
+.about-eyebrow-line {
+  display: inline-block;
+  width: 36px;
+  height: 1.5px;
+  background: rgba(91, 200, 190, 0.45);
+  border-radius: 2px;
+}
+
+/* Main heading: About SatQuery. */
+.about-main-title {
+  font-size: clamp(38px, 4.4vw, 62px);
+  line-height: 1.06;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin: 0 0 24px 0;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.title-bone {
+  color: #EEEDE7;
+}
+
+.title-lime {
+  color: #B7D84B;
+}
+
+/* Description paragraph */
+.about-main-desc {
+  font-size: clamp(14.5px, 1.15vw, 16px);
+  line-height: 1.68;
+  color: #969A94;
+  max-width: 530px;
+  margin: 0 0 32px 0;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* Learn More button */
+.about-cta-wrap {
+  margin-bottom: 40px;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.about-learn-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  border: 1px solid #B7D84B;
+  background: transparent;
+  color: #EEEDE7;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 0 12px rgba(183, 216, 75, 0.12);
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.about-learn-more-btn:hover {
+  background: rgba(183, 216, 75, 0.08);
+  border-color: #D2F562;
+  box-shadow: 0 0 18px rgba(183, 216, 75, 0.22);
+  transform: translateY(-2px);
+}
+
+.about-cta-arrow {
+  color: #B7D84B;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.about-learn-more-btn:hover .about-cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Three Statistics Horizontally (No cards, thin graphite vertical separators) */
+.about-stats-row {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(16px, 2.8vw, 36px);
+  margin-bottom: 24px;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.about-stat-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 105px;
+}
+
+.stat-number {
+  font-size: clamp(30px, 3.2vw, 42px);
+  font-weight: 800;
+  color: #EEEDE7;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  transition: color 0.25s ease;
+}
+
+.about-stat-item:hover .stat-number {
+  color: #FFFFFF;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #969A94;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.stat-sub {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #6E736D;
+}
+
+.stat-separator {
+  width: 1px;
+  background: #30342F;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+/* Sub-tagline */
+.about-subtagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 10px;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.subtagline-bar {
+  display: inline-block;
+  width: 2px;
+  height: 13px;
+  background: #5BC8BE;
+}
+
+.subtagline-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #969A94;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------- */
+/* PART 1 — RIGHT SIDE: WHAT YOU CAN DO               */
+/* -------------------------------------------------- */
+
+.about-col-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.what-header-wrap {
+  margin-bottom: 22px;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.what-main-title {
+  font-size: clamp(24px, 2.5vw, 34px);
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.what-title-line {
+  display: inline-block;
+  width: 32px;
+  height: 1.5px;
+  background: #B7D84B;
+  border-radius: 2px;
+}
+
+.what-subtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #969A94;
+  margin: 0;
+}
+
+/* Three Horizontal Feature Rows */
+.what-features-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.what-feature-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 30px 0;
+  cursor: pointer;
+  will-change: transform, opacity;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+}
+
+/* Feature Icon Badge */
+.what-feature-icon-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(48, 52, 47, 0.25);
+  border: 1px solid rgba(48, 52, 47, 0.85);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.what-feature-icon-badge .feature-icon {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.badge-lime {
+  color: #B7D84B;
+  border-color: rgba(183, 216, 75, 0.28);
+}
+
+.badge-teal {
+  color: #5BC8BE;
+  border-color: rgba(91, 200, 190, 0.28);
+}
+
+/* Feature Content */
+.what-feature-content {
+  flex: 1;
+}
+
+.what-feature-heading {
+  font-size: 18px;
+  font-weight: 650;
+  color: #EEEDE7;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px 0;
+  transition: color 0.22s ease;
+}
+
+.what-feature-text {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #969A94;
+  margin: 0;
+  transition: color 0.22s ease;
+}
+
+/* Numbers 01 / 02 / 03 on far right */
+.what-feature-number {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #969A94;
+  flex-shrink: 0;
+}
+
+.feature-dash {
+  color: #30342F;
+}
+
+.feature-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin Graphite Line Separator */
+.what-row-divider {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #30342F;
+  transition: background 0.28s ease;
+}
+
+/* Hover Interactions for Feature Rows:
+   - row shifts right 4–6px
+   - icon becomes slightly brighter
+   - title becomes Bone White
+   - thin divider brightens
+   - one tiny Acid Lime data point travels along the divider once
+*/
+@media (hover: hover) and (pointer: fine) {
+  .what-feature-row:hover {
+    transform: translateX(6px);
+  }
+
+  .what-feature-row:hover .what-feature-heading {
+    color: #FFFFFF;
+  }
+
+  .what-feature-row:hover .what-feature-text {
+    color: #B8BCB7;
+  }
+
+  .what-feature-row:hover .badge-lime {
+    background: rgba(183, 216, 75, 0.08);
+    border-color: #B7D84B;
+    box-shadow: 0 0 14px rgba(183, 216, 75, 0.18);
+    transform: scale(1.05);
+  }
+
+  .what-feature-row:hover .badge-teal {
+    background: rgba(91, 200, 190, 0.08);
+    border-color: #5BC8BE;
+    box-shadow: 0 0 14px rgba(91, 200, 190, 0.18);
+    transform: scale(1.05);
+  }
+
+  .what-feature-row:hover .what-row-divider {
+    background: rgba(91, 200, 190, 0.45);
+  }
+
+  .what-feature-row:hover .what-divider-pulse-hover {
+    position: absolute;
+    top: -1.5px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #B7D84B;
+    box-shadow: 0 0 6px 1px #B7D84B;
+    pointer-events: none;
+    animation: divider-pulse-hover 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}
+
+@keyframes divider-pulse-hover {
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* ================================================== */
+/* CONNECTING THIN DIVIDER (50-70px SPACING)          */
+/* ================================================== */
+
+.about-parts-divider {
+  width: 100%;
+  height: 1px;
+  background: #30342F;
+  margin: 64px 0;
+}
+
+/* ================================================== */
+/* PART 2: HOW TO USE SATQUERY                        */
+/* ================================================== */
+
+.how-to-use-part {
+  position: relative;
+  background: transparent;
+}
+
+/* Header Row */
+.how-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 38px;
+  gap: 24px;
+  flex-wrap: wrap;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.how-main-title {
+  font-size: clamp(26px, 2.6vw, 36px);
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.how-title-line {
+  display: inline-block;
+  width: 36px;
+  height: 1.5px;
+  background: #B7D84B;
+  border-radius: 2px;
+}
+
+.how-subtitle {
+  font-size: 14px;
+  color: #969A94;
+  margin: 0;
+}
+
+.how-badge-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #5BC8BE;
+  text-transform: uppercase;
+}
+
+/* 4-Step Horizontal Timeline Track */
+.how-timeline-container {
+  position: relative;
+  padding-top: 10px;
+  margin-bottom: 44px;
+}
+
+/* Connecting technical line behind step circles */
+.how-timeline-track {
+  position: absolute;
+  top: 28px;
+  left: 36px;
+  right: 36px;
+  height: 1.5px;
+  background: #30342F;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Active portion: Muted Teal #5BC8BE */
+.how-timeline-active-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #5BC8BE;
+  box-shadow: 0 0 6px rgba(91, 200, 190, 0.45);
+  transition: width 0.15s ease-out;
+}
+
+/* Tiny data points: Acid Lime #B7D84B */
+.timeline-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #30342F;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-dot.dot-1 {
+  left: 33.3%;
+}
+
+.timeline-dot.dot-2 {
+  left: 66.6%;
+}
+
+.timeline-dot.dot-3 {
+  left: 99.5%;
+}
+
+.timeline-dot.is-active {
+  background: #B7D84B;
+  box-shadow: 0 0 6px 1.5px #B7D84B;
+}
+
+/* 4 Steps Grid */
+.how-steps-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 2.2vw, 28px);
+}
+
+/* Step Card */
+.how-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: pointer;
+  will-change: transform, opacity;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+}
+
+/* Circular Number Badge */
+.how-step-top {
+  display: flex;
+  align-items: center;
+}
+
+.step-circle-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #050607;
+  border: 1.5px solid #30342F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #969A94;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.how-step-card.step-active .step-circle-badge {
+  border-color: #5BC8BE;
+  color: #EEEDE7;
+}
+
+/* Previews Container: Consistent Height */
+.step-preview-container {
+  position: relative;
+  width: 100%;
+  height: 116px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #30342F;
+  background: #050607;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Step 01: Real Satellite Image Thumbnail */
+.step-preview-image {
+  background: #050607;
+}
+
+.step-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.step-img-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-reticle {
+  width: 26px;
+  height: 26px;
+  border: 1.5px dashed rgba(183, 216, 75, 0.7);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(183, 216, 75, 0.2) 0%, transparent 60%);
+}
+
+/* Step 02: Query Field */
+.step-preview-query {
+  padding: 14px;
+}
+
+.step-query-box {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(48, 52, 47, 0.3);
+  border: 1px solid rgba(91, 200, 190, 0.35);
+  transition: border-color 0.25s ease;
+}
+
+.query-placeholder {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #EEEDE7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.query-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(91, 200, 190, 0.2);
+  border: 1px solid #5BC8BE;
+  color: #5BC8BE;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.query-submit-btn:hover {
+  background: rgba(91, 200, 190, 0.35);
+  transform: translateX(1.5px);
+}
+
+/* Step 03: Before/After Satellite Comparison */
+.step-preview-compare {
+  background: #050607;
+}
+
+.step-compare-slider {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.compare-slider-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  background: #EEEDE7;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+.compare-handle-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #050607;
+  border: 1.5px solid #EEEDE7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #EEEDE7;
+}
+
+/* Step 04: Compact List Box */
+.step-preview-list {
+  padding: 10px;
+}
+
+.step-compact-list {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+  padding: 4px;
+  align-content: center;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #969A94;
+  white-space: nowrap;
+}
+
+.list-icon {
+  color: #5BC8BE;
+  flex-shrink: 0;
+}
+
+/* Step Typography */
+.step-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #EEEDE7;
+  letter-spacing: -0.01em;
+  margin: 0;
+  transition: color 0.22s ease;
+}
+
+.step-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #969A94;
+  margin: 0;
+}
+
+/* Hover Interactions for How to Use Steps:
+   - number border brightens
+   - step moves upward 3–4px
+   - satellite thumbnail scales to 1.03
+   - connecting data point becomes brighter
+*/
+@media (hover: hover) and (pointer: fine) {
+  .how-step-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .how-step-card:hover .step-circle-badge {
+    border-color: #B7D84B;
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(183, 216, 75, 0.35);
+  }
+
+  .how-step-card:hover .step-preview-container {
+    border-color: rgba(91, 200, 190, 0.5);
+    box-shadow: 0 0 12px rgba(91, 200, 190, 0.12);
+  }
+
+  .how-step-card:hover .step-thumb-img {
+    transform: scale(1.03);
+  }
+
+  .how-step-card:hover .step-title {
+    color: #FFFFFF;
+  }
+}
+
+/* Centered Bottom Accent */
+.how-bottom-accent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 36px;
+}
+
+.accent-line {
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: #30342F;
+}
+
+.accent-text {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #969A94;
+  text-transform: uppercase;
+}
+
+/* ================================================== */
+/* RESPONSIVE STYLES                                  */
+/* ================================================== */
+
+@media (max-width: 960px) {
+  .about-section {
+    padding: 70px 24px 50px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 52px;
+  }
+
+  .about-col-left {
+    max-width: 680px;
+  }
+
+  .how-timeline-track {
+    display: none;
+  }
+
+  .how-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .about-eyebrow-wrap,
+  .about-main-title,
+  .about-main-desc,
+  .about-cta-wrap,
+  .about-stats-row,
+  .about-subtagline,
+  .what-header-wrap,
+  .what-feature-row,
+  .how-header-row,
+  .how-step-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-stats-row {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .stat-separator {
+    width: 100%;
+    height: 1px;
+  }
+
+  .how-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .what-feature-row {
+    gap: 16px;
+    padding: 22px 0;
+  }
+
+  .what-feature-icon-badge {
+    width: 46px;
+    height: 46px;
+  }
+
+  .what-feature-heading {
+    font-size: 16px;
+  }
+
+  .what-feature-text {
+    font-size: 13px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .about-eyebrow-wrap,
+  .about-main-title,
+  .about-main-desc,
+  .about-cta-wrap,
+  .about-stats-row,
+  .about-subtagline,
+  .what-header-wrap,
+  .what-feature-row,
+  .how-header-row,
+  .how-step-card {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .how-timeline-active-line {
+    width: 100% !important;
+    transition: none !important;
+  }
+}

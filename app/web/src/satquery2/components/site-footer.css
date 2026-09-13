@@ -1,0 +1,309 @@
+/* ──────────────────────────────────────────────────────────────
+   SatQuery Cinematic Space & Lunar Footer
+   Exact visual match to OrbitX / Deep Space SaaS Reference
+   ────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  position: relative;
+  width: 100%;
+  min-height: clamp(380px, 46vh, 460px);
+  background: #020609;
+  color: #94a3b8;
+  font-family: inherit;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  isolation: isolate;
+}
+
+/* ── 1. Photographic Lunar & Orbit Backdrop ── */
+.footer-lunar-backdrop {
+  position: absolute;
+  inset: 0;
+  background-image: url('/footer-lunar-bg.jpg');
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: cover;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.95;
+}
+
+/* Vignette overlay: deep black on left for typography readability, seamless blend on top */
+.footer-vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, #020609 0%, #020609 28%, rgba(2, 6, 9, 0.84) 44%, rgba(2, 6, 9, 0.3) 64%, transparent 100%),
+    linear-gradient(180deg, #020609 0%, rgba(2, 6, 9, 0.6) 16%, transparent 38%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Distant faint starfield */
+.footer-stars-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(1px 1px at 30px 40px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 180px 120px, rgba(56, 189, 248, 0.65), transparent),
+    radial-gradient(1px 1px at 340px 70px, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.4px 1.4px at 520px 190px, rgba(147, 197, 253, 0.7), transparent),
+    radial-gradient(1px 1px at 700px 50px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.2px 1.2px at 860px 140px, rgba(56, 189, 248, 0.5), transparent),
+    radial-gradient(1.3px 1.3px at 1040px 80px, rgba(255, 255, 255, 0.7), transparent);
+  background-repeat: repeat;
+  background-size: 1200px 300px;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+/* ── 2. Floating Satellite Stage (Small & In The Middle) ── */
+.footer-satellite-stage {
+  position: absolute;
+  right: clamp(60px, 14vw, 220px);
+  top: 48%;
+  transform: translateY(-50%) translate(var(--mouse-shift-x, 0px), var(--mouse-shift-y, 0px));
+  width: clamp(220px, 20vw, 320px);
+  pointer-events: none;
+  z-index: 3;
+  transition: transform 0.25s ease-out;
+}
+
+/* Slow zero-G floating animation */
+.footer-satellite-float-anim {
+  position: relative;
+  width: 100%;
+  height: auto;
+  z-index: 2;
+  animation: sat-orbitx-float 10.5s ease-in-out infinite alternate;
+}
+
+@keyframes sat-orbitx-float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.8deg);
+  }
+  100% {
+    transform: translateY(-4px) rotate(0.5deg);
+  }
+}
+
+.footer-satellite-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.95));
+}
+
+/* ── 3. Content Wrapper ── */
+.footer-inner {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(52px, 6.5vh, 72px) clamp(24px, 5.5vw, 84px) clamp(22px, 3vh, 32px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.footer-main-row {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(36px, 5vw, 76px);
+}
+
+/* ── Brand Column ── */
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 270px;
+  flex-shrink: 0;
+}
+
+.footer-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  transition: opacity 0.2s ease;
+  width: fit-content;
+}
+
+.footer-brand-link:hover {
+  opacity: 0.9;
+}
+
+.footer-brand-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.62;
+  color: #8a99ad;
+  letter-spacing: 0.01em;
+}
+
+/* Minimal circular social icons */
+.footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+.footer-social-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a99ad;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  text-decoration: none;
+  font-size: 12px;
+  transition: all 0.22s ease;
+}
+
+.footer-social-btn:hover {
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+  transform: translateY(-2px);
+}
+
+/* ── Navigation Groups (3 Columns) ── */
+.footer-nav-groups {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(36px, 4.5vw, 64px);
+}
+
+.footer-nav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 100px;
+}
+
+.footer-col-heading {
+  margin: 0 0 2px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.footer-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.footer-nav-link {
+  font-size: 13px;
+  color: #8a99ad;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+  width: fit-content;
+}
+
+.footer-nav-link:hover {
+  color: #38bdf8;
+  transform: translateX(2px);
+}
+
+/* ── Bottom Bar: Right-Aligned Copyright (matching reference) ── */
+.footer-bottom-bar {
+  position: relative;
+  z-index: 5;
+  margin-top: clamp(28px, 4vh, 44px);
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.footer-copyright {
+  margin: 0;
+  font-size: 11.5px;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+/* ── Responsive Styling ── */
+@media (max-width: 1120px) {
+  .footer-satellite-stage {
+    width: clamp(340px, 38vw, 480px);
+    right: 15px;
+  }
+}
+
+@media (max-width: 880px) {
+  .site-footer {
+    min-height: auto;
+  }
+
+  .footer-main-row {
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .footer-brand-col {
+    max-width: 420px;
+  }
+
+  .footer-nav-groups {
+    gap: 36px;
+    flex-wrap: wrap;
+  }
+
+  .footer-satellite-stage {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: min(220px, 60vw);
+    margin: 15px auto 0;
+  }
+
+  .footer-bottom-bar {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .footer-inner {
+    padding: 40px 20px 24px;
+  }
+
+  .footer-nav-groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .footer-bottom-bar {
+    justify-content: flex-start;
+  }
+}

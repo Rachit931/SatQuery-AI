@@ -1,0 +1,214 @@
+/* Nav SignIn Modal Overlay Styles */
+
+.signin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 9, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px;
+  animation: modal-fade-in 0.22s ease-out;
+}
+
+.signin-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(8, 15, 26, 0.94);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 18px;
+  padding: 34px 30px;
+  box-shadow: 
+    0 24px 64px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(56, 189, 248, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  animation: modal-slide-up 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.signin-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signin-modal-close:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  transform: rotate(90deg);
+}
+
+.signin-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 4px 11px;
+  border-radius: 9999px;
+  margin-bottom: 16px;
+}
+
+.signin-modal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: signin-dot-blink 1.8s infinite ease-in-out;
+}
+
+@keyframes signin-dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.signin-modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.015em;
+}
+
+.signin-modal-subtitle {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #94a3b8;
+  margin: 0 0 24px 0;
+}
+
+.signin-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.signin-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.signin-modal-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+}
+
+.signin-modal-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.signin-modal-icon {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.signin-modal-input-wrap input {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  background: rgba(2, 6, 12, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #f8fafc;
+  font-size: 13.5px;
+  outline: none;
+  transition: all 0.22s ease;
+}
+
+.signin-modal-input-wrap input:focus {
+  border-color: #38bdf8;
+  background: rgba(2, 6, 12, 0.95);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.22);
+}
+
+.signin-modal-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 18px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #38bdf8;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(37, 99, 235, 0.3) 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.28);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.signin-modal-submit:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.45) 0%, rgba(37, 99, 235, 0.45) 100%);
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.48);
+  transform: translateY(-1.5px);
+}
+
+.signin-modal-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 12px;
+}
+
+.signin-modal-success-icon {
+  color: #10b981;
+  margin-bottom: 12px;
+}
+
+.signin-modal-success h4 {
+  font-size: 18px;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.signin-modal-success p {
+  font-size: 13.5px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
