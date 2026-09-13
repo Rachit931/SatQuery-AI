@@ -30,9 +30,9 @@ export default function Home() {
         </Link>
         <nav aria-label="Primary navigation">
           <Link href="/" data-sat-interactive="nav">Home</Link>
-          <Link href="/#workspace" data-sat-interactive="nav">Workspace</Link>
+          <Link href="/workspace" data-sat-interactive="nav">Workspace</Link>
           <Link href="/watch-zone" data-sat-interactive="nav">Watch Zone</Link>
-          <Link href="/#workspace" data-sat-interactive="nav">Offline Mode</Link>
+          <Link href="/workspace" data-sat-interactive="nav">Offline Mode</Link>
           <Link href="/#history" data-sat-interactive="nav">History</Link>
           <button type="button" className="nav-search-btn" aria-label="Search" data-sat-interactive="nav">
             <Search size={16} />
@@ -55,9 +55,9 @@ export default function Home() {
             Explore satellite imagery, monitor your regions, and take insights
             into the field.
           </p>
-          <a className="primary-cta" href="#workspace" data-sat-interactive="cta">
+          <Link className="primary-cta" href="/workspace" data-sat-interactive="cta">
             Explore Workspace <ArrowUpRight size={17} />
-          </a>
+          </Link>
         </div>
         <p className="scroll-cue">
           <span>Scroll to explore</span>
